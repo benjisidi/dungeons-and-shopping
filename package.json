@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "A web app for tracking shop inventories in dnd 5e",
   "main": "",
-  "author": "Benji Sidi <benji.sidi@gmail.com> | Truman Wright <>",
+  "author": "Benji Sidi <benji.sidi@gmail.com> | Truman Wright <trumanwright13@gmail.com>",
   "license": "MIT",
   "scripts": {
     "all": "yarn && yarn --cwd \"./client\" && yarn --cwd \"./server\""
