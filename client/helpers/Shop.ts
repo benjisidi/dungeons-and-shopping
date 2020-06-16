@@ -23,13 +23,16 @@ const itemsByCategory = Object.keys(equipment).reduce((lookup, itemKey) => {
   }
   return lookup;
 }, {});
+console.log(itemsByCategory);
 class Shop {
   category: string;
   inventory: string[];
   maxItems: number;
-  constructor({ category, maxItems = 10 }) {
+  name: string;
+  constructor({ category, maxItems = 10, name }) {
     this.maxItems = maxItems;
     this.category = category;
+    this.name = name;
     this.randomizeInventory();
   }
   randomizeInventory = () => {
