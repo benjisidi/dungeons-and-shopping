@@ -39,7 +39,7 @@ const HomePage = () => {
   return (
     <>
       <PageWrapper>
-        <div className="fill-space">
+        <div className="main-area centered-content">
           <HeadingTextWrapper>
             <h1 className="bp3-heading">
               Realistic Make-Believe Fantasy Shops.
