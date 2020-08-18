@@ -12,6 +12,7 @@ const main = async () => {
   app.use("/api/users", users);
   try {
     await mongoose.connect(keys.mongoURI, {
+      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
