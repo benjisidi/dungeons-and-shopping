@@ -1,65 +1,95 @@
 import express from "express";
 import { User } from "../../models";
+import {
+  getMissingKeys,
+  encryptUserPayload,
+  createToken,
+  authMiddleware,
+} from "../../helpers";
 
 export const users = express.Router();
 
-// GET Users
-
-users.get("/", async (request, response) => {
-  const users = await User.find();
-  response.json(users);
-});
-
 // GET User
 
-users.get("/:id", async (request, response) => {
+users.get("/", authMiddleware, async (request, response) => {
   try {
-    const user = await User.findById(request.params.id);
-    response.json(user);
+    const id = request.headers["user-id"];
+    const user = await User.findById(id);
+    const { _id, username, email, shops } = await user.toObject();
+    response.json({ _id, username, email, shops });
   } catch (e) {
-    response.status(404).json("User not found");
+    response.status(404).json({ message: "user not found" });
   }
 });
 
 // CREATE User
 
 users.post("/", async (request, response) => {
-  const newUser = new User({
-    username: request.body.username,
-    password: request.body.password,
-  });
+  const { missingKeys, wrongKeys } = getMissingKeys(
+    ["email", "password", "username"],
+    request.body
+  );
+  if (missingKeys || wrongKeys) {
+    return response
+      .status(401)
+      .json({ message: "payload malformed", missingKeys, wrongKeys });
+  }
+
+  const newUser = new User(encryptUserPayload(request.body));
   try {
-    const newRecord = await newUser.save();
-    response.json(newRecord);
+    await newUser.save();
+    const { _id, username, email } = await newUser.toObject();
+    response.json({
+      token: createToken(_id),
+      user: { _id, username, email },
+    });
   } catch (e) {
     if (e.code === 11000) {
-      response.status(409).json(`${request.body.username} already exists`);
+      console.log(e);
+      return response.status(409).json({
+        message: `an account for ${request.body.username} or ${request.body.email} (or both) already exists`,
+      });
     }
-    response.status(400).json("something went wrong");
+    response.status(400).json({ message: "something went wrong" });
   }
 });
 
 // UPDATE User
 
-users.post("/:id", async (request, response) => {
+users.post("/", authMiddleware, async (request, response) => {
+  const id = request.headers["user-id"];
+  const { wrongKeys } = getMissingKeys(
+    ["email", "password", "username"],
+    request.body
+  );
+  if (wrongKeys) {
+    return response
+      .status(401)
+      .json({ message: "payload malformed", wrongKeys });
+  }
   try {
-    const user = await User.findByIdAndUpdate(request.params.id, request.body, {
-      new: true,
-    });
+    const user = await User.findByIdAndUpdate(
+      id,
+      encryptUserPayload(request.body),
+      {
+        new: true,
+      }
+    );
     response.json(user);
   } catch (e) {
-    response.status(404).json("User not found");
+    response.status(404).json({ message: "user not found" });
   }
 });
 
 // DELETE User
 
-users.delete("/:id", async (request, response) => {
+users.delete("/", authMiddleware, async (request, response) => {
+  const id = request.headers["user-id"];
   try {
-    const user = await User.findById(request.params.id);
+    const user = await User.findById(id);
     await user.remove();
-    response.json("ya killed ham");
+    response.json({ message: "ya killed ham" });
   } catch (e) {
-    response.status(404).json("User not found");
+    response.status(404).json({ message: "user not found" });
   }
 });
