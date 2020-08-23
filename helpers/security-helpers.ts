@@ -32,7 +32,6 @@ export const authMiddleware = (
   }
   try {
     const decoded = jwt.verify(token, keys.jwtSecret) as JWTinfo;
-    console.log(decoded);
     request.headers["user-id"] = decoded.id;
     next();
   } catch (e) {
