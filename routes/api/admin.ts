@@ -60,7 +60,6 @@ admin.post(
       });
     } catch (e) {
       if (e.code === 11000) {
-        console.log(e);
         return response.status(409).json({
           message: `an account for ${request.body.username} or ${request.body.email} (or both) already exists`,
         });
@@ -79,7 +78,6 @@ admin.post(
   adminOnly,
   async (request, response) => {
     const id = request.params.id;
-    console.log(request);
     const { wrongKeys } = getMissingKeys(
       ["email", "password", "username", "admin"],
       request.body

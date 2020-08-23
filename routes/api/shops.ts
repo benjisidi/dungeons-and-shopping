@@ -71,7 +71,6 @@ shops.post("/:id", authMiddleware, validateUser, async (request, response) => {
     const { stock, ...shopData } = await shop.toObject();
     response.json({ ...shopData, items: stock.length });
   } catch (e) {
-    console.log(e);
     response.status(400).json({ message: "something went wrong" });
   }
 });
