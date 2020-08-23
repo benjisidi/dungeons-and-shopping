@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import { ShopSchema } from ".";
 
 export const UserSchema = new Schema({
   username: {
@@ -15,9 +14,6 @@ export const UserSchema = new Schema({
   password: {
     type: String,
     required: true,
-  },
-  shops: {
-    type: [ShopSchema],
   },
 });
 
