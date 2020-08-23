@@ -9,8 +9,17 @@ export interface Stock {
   number: number;
   itemId: string;
 }
+
 export interface Shop {
   name: string;
   _id: Types.ObjectId;
   stock: Stock[];
+}
+
+export interface User {
+  _id: Types.ObjectId;
+  password: string;
+  email: string;
+  username: string;
+  admin: boolean;
 }

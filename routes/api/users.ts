@@ -16,8 +16,9 @@ users.get("/", authMiddleware, validateUser, async (request, response) => {
   try {
     const id = request.headers["user-id"];
     const user = await User.findById(id);
-    const { _id, username, email } = await user.toObject();
-    response.json({ token: createToken(_id), user: { _id, username, email } });
+    const userResponse = await user.toObject();
+    delete userResponse.password;
+    response.json({ token: createToken(userResponse._id), user: userResponse });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -25,7 +26,7 @@ users.get("/", authMiddleware, validateUser, async (request, response) => {
 
 // CREATE User
 
-users.post("/", async (request, response) => {
+users.put("/", async (request, response) => {
   const { missingKeys, wrongKeys } = getMissingKeys(
     ["email", "password", "username"],
     request.body
@@ -36,17 +37,19 @@ users.post("/", async (request, response) => {
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
 
-  const newUser = new User(encryptUserPayload(request.body));
+  const newUser = new User(
+    encryptUserPayload({ ...request.body, admin: false })
+  );
   try {
     await newUser.save();
-    const { _id, username, email } = await newUser.toObject();
+    const user = await newUser.toObject();
+    delete user.password;
     response.json({
-      token: createToken(_id),
-      user: { _id, username, email },
+      token: createToken(user._id),
+      user,
     });
   } catch (e) {
     if (e.code === 11000) {
-      console.log(e);
       return response.status(409).json({
         message: `an account for ${request.body.username} or ${request.body.email} (or both) already exists`,
       });
@@ -76,6 +79,11 @@ users.post("/", authMiddleware, validateUser, async (request, response) => {
     );
     response.json(user);
   } catch (e) {
+    if (e.code === 11000) {
+      return response.status(409).json({
+        message: `an account for ${request.body.username} or ${request.body.email} (or both) already exists`,
+      });
+    }
     response.status(400).json({ message: "something went wrong" });
   }
 });
@@ -85,7 +93,10 @@ users.post("/", authMiddleware, validateUser, async (request, response) => {
 users.delete("/", authMiddleware, validateUser, async (request, response) => {
   const id = request.headers["user-id"];
   try {
-    await User.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return response.status(401).json({ message: "user not found" });
+    }
     // delete all shops for that user
     await Shop.deleteMany({ userId: id });
     response.json({ message: "ya killed ham, an hus shaps" });
