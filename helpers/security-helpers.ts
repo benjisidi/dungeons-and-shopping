@@ -3,6 +3,7 @@ import { keys } from "../config";
 import bcrypt from "bcryptjs";
 import express from "express";
 import { JWTinfo } from "../types";
+import { User } from "../models";
 
 export const createToken = (id: string) => {
   const jwtDetails: JWTinfo = { id };
@@ -36,5 +37,22 @@ export const authMiddleware = (
     next();
   } catch (e) {
     response.status(400).json({ message: "wtf dis jwt" });
+  }
+};
+
+export const validateUser = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
+  try {
+    const id = request.headers["user-id"];
+    const user = await User.findById(id);
+    if (!user) {
+      response.status(404).json({ message: "user not found" });
+    }
+    next();
+  } catch (e) {
+    response.status(400).json({ message: "something went wrong" });
   }
 };
