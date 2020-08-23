@@ -56,3 +56,23 @@ export const validateUser = async (
     response.status(400).json({ message: "something went wrong" });
   }
 };
+
+export const adminOnly = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
+  const id = request.headers["user-id"];
+  try {
+    const user = await User.findById(id);
+    const { admin } = await user.toObject();
+    if (!admin) {
+      return response
+        .status(403)
+        .json({ message: "this user account is not admin" });
+    }
+    next();
+  } catch (e) {
+    response.status(400).json({ message: "something went wrong" });
+  }
+};
