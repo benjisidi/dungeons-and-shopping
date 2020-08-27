@@ -76,6 +76,14 @@ export const validateStockArray = (
 
   return {
     validStock: validStock.length && validStock,
-    rejectedStock: rejectedStock.length && rejectedStock,
+    rejectedStock,
   };
+};
+
+export const validateIdArray = (ids): string[] => {
+  if (!isArray(ids)) {
+    return null;
+  }
+  const validIds = ids.filter((id) => typeof id === "string");
+  return validIds.length ? validIds : null;
 };
