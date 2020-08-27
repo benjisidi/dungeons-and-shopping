@@ -1,5 +1,5 @@
 import express from "express";
-import { Shop } from "../../models";
+import { Shop, Stock } from "../../models";
 import { getMissingKeys, authMiddleware, validateUser } from "../../helpers";
 import { Shop as ShopType } from "../../types";
 
@@ -79,7 +79,9 @@ shops.delete(
       if (!shop) {
         return response.status(404).json({ message: "shop not found" });
       }
-      response.json({ message: "ya killed ham" });
+      // delete all stock for that shop
+      await Stock.deleteMany({ userId, shopId });
+      response.json({ message: "ya killed ham, an hus stacks" });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });
     }

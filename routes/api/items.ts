@@ -1,11 +1,12 @@
 import express from "express";
-import { Item } from "../../models";
+import { Item, Stock } from "../../models";
 import {
   getMissingKeys,
   authMiddleware,
   validateUser,
   validateItemsArray,
   asyncForEach,
+  validateIdArray,
 } from "../../helpers";
 import { Item as ItemType } from "../../types";
 
@@ -40,7 +41,7 @@ items.put("/", authMiddleware, validateUser, async (request, response) => {
   const { validItems, rejectedItems } = validateItemsArray(request.body.items);
   if (!validItems) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "there's something up with these items - have a look" });
   }
   const items = validItems.map((item) => ({
@@ -67,11 +68,16 @@ items.delete("/", authMiddleware, validateUser, async (request, response) => {
       .status(401)
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
-
+  const idArray = validateIdArray(request.body.items);
+  if (!idArray) {
+    return response
+      .status(400)
+      .json({ message: "there's something up with these ids - have a look" });
+  }
   try {
     const deletedItems = await Item.find({
       _id: {
-        $in: request.body.items,
+        $in: idArray,
       },
       userId,
       global: false,
@@ -82,12 +88,18 @@ items.delete("/", authMiddleware, validateUser, async (request, response) => {
 
     const { deletedCount } = await Item.deleteMany({
       _id: {
-        $in: request.body.items,
+        $in: idArray,
       },
       userId,
       global: false,
     });
-
+    // delete all stock associated with those items
+    await Stock.deleteMany({
+      userId,
+      itemId: {
+        $in: request.body.items,
+      },
+    });
     response.json({ message: "ya killed tham", deletedCount, deletedItems });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
@@ -101,7 +113,7 @@ items.post("/", authMiddleware, validateUser, async (request, response) => {
   const { missingKeys, wrongKeys } = getMissingKeys(["items"], request.body);
   if (missingKeys || wrongKeys) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
   const { validItems, rejectedItems } = validateItemsArray(
@@ -111,7 +123,7 @@ items.post("/", authMiddleware, validateUser, async (request, response) => {
   );
   if (!validItems) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "there's something up with these items - have a look" });
   }
   const updatePayload = validItems.map((item) => ({

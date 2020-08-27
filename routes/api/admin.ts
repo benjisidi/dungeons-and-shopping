@@ -115,6 +115,7 @@ admin.delete(
   adminOnly,
   async (request, response) => {
     const id = request.params.id;
+    // you cannot delete the original admin user (so someone can always do admin things)
     if (id === "5f47e9524f9cf34360540fc5") {
       return response
         .status(401)
@@ -123,7 +124,7 @@ admin.delete(
     try {
       const user = await User.findByIdAndDelete(id);
       if (!user) {
-        return response.status(401).json({ message: "user not found" });
+        return response.status(404).json({ message: "user not found" });
       }
       // delete all shops. items and stock for that user
       await Shop.deleteMany({ userId: id });

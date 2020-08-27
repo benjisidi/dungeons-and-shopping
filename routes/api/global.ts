@@ -1,6 +1,6 @@
 // routes for controlling global items (and maybe shop templates)
 import express from "express";
-import { Item } from "../../models";
+import { Item, Stock } from "../../models";
 import {
   getMissingKeys,
   authMiddleware,
@@ -9,7 +9,6 @@ import {
   adminOnly,
   asyncForEach,
 } from "../../helpers";
-import { Item as ItemType } from "../../types";
 
 export const global = express.Router();
 
@@ -22,8 +21,7 @@ global.get(
   adminOnly,
   async (request, response) => {
     try {
-      const items: ItemType[] = await Item.find({ global: true }).lean();
-
+      const items = await Item.find({ global: true });
       response.json({ items });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });
@@ -33,7 +31,7 @@ global.get(
 
 // CREATE Global Items
 
-global.post(
+global.put(
   "/",
   authMiddleware,
   validateUser,
@@ -45,7 +43,7 @@ global.post(
         .status(401)
         .json({ message: "payload malformed", missingKeys, wrongKeys });
     }
-
+    // check the item array is valid
     const { validItems, rejectedItems } = validateItemsArray(
       request.body.items
     );
@@ -60,43 +58,6 @@ global.post(
     }));
     try {
       const createdItems = await Item.create(items);
-      response.json({ createdItems, rejectedItems });
-    } catch (e) {
-      response.status(400).json({ message: "something went wrong" });
-    }
-  }
-);
-
-// PUT Global Items
-
-global.put(
-  "/",
-  authMiddleware,
-  validateUser,
-  adminOnly,
-  async (request, response) => {
-    const { missingKeys, wrongKeys } = getMissingKeys(["items"], request.body);
-    if (missingKeys || wrongKeys) {
-      return response
-        .status(401)
-        .json({ message: "payload malformed", missingKeys, wrongKeys });
-    }
-    const { validItems, rejectedItems } = validateItemsArray(
-      request.body.items
-    );
-    if (!validItems) {
-      return response.status(401).json({
-        message: "there's something up with these items chief - have a look",
-      });
-    }
-    const createdItems = validItems.map((item) => ({
-      ...item,
-      global: true,
-    }));
-
-    try {
-      await Item.deleteMany({ global: true });
-      await Item.create(createdItems);
       response.json({ createdItems, rejectedItems });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });
@@ -128,7 +89,12 @@ global.delete(
       if (!deletedItems.length) {
         return response.status(404).json({ message: "no items found" });
       }
-
+      // delete all stock associated with those items
+      await Stock.deleteMany({
+        itemId: {
+          $in: request.body.items,
+        },
+      });
       const { deletedCount } = await Item.deleteMany({
         _id: {
           $in: request.body.items,
@@ -144,7 +110,7 @@ global.delete(
 
 // Update Global Items
 
-global.patch(
+global.post(
   "/",
   authMiddleware,
   validateUser,
