@@ -1,5 +1,5 @@
 import express from "express";
-import { User, Shop } from "../../models";
+import { User, Shop, Stock, Item } from "../../models";
 import {
   getMissingKeys,
   createToken,
@@ -120,8 +120,10 @@ admin.delete(
       if (!user) {
         return response.status(401).json({ message: "user not found" });
       }
-      // delete all shops for that user
+      // delete all shops. items and stock for that user
       await Shop.deleteMany({ userId: id });
+      await Stock.deleteMany({ userId: id });
+      await Item.deleteMany({ userId: id, global: false });
       response.json({ message: "ya killed ham, an hus shaps" });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });

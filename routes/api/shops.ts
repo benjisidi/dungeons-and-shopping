@@ -11,12 +11,7 @@ shops.get("/", authMiddleware, validateUser, async (request, response) => {
   try {
     const userId = request.headers["user-id"];
     const shops: ShopType[] = await Shop.find({ userId }).lean();
-    const shopsResponse = shops.map(({ stock, ...shopData }) => ({
-      ...shopData,
-      items: stock.length,
-    }));
-
-    response.json({ shops: shopsResponse });
+    response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -29,20 +24,14 @@ shops.post("/", authMiddleware, validateUser, async (request, response) => {
   const { missingKeys, wrongKeys } = getMissingKeys(["name"], request.body);
   if (missingKeys || wrongKeys) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
   try {
     const newShop = new Shop({ ...request.body, userId });
     await newShop.save();
-
     const shops: ShopType[] = await Shop.find({ userId }).lean();
-    const shopsResponse = shops.map(({ stock, ...shopData }) => ({
-      ...shopData,
-      items: stock.length,
-    }));
-
-    response.json({ shops: shopsResponse });
+    response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -68,8 +57,8 @@ shops.post("/:id", authMiddleware, validateUser, async (request, response) => {
     if (!shop) {
       return response.status(404).json({ message: "shop not found" });
     }
-    const { stock, ...shopData } = await shop.toObject();
-    response.json({ ...shopData, items: stock.length });
+
+    response.json(shop);
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
