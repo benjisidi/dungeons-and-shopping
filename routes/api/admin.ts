@@ -115,7 +115,7 @@ admin.delete(
   adminOnly,
   async (request, response) => {
     const id = request.params.id;
-    if (id === "5f42af0571720b6f54cf132d") {
+    if (id === "5f47e9524f9cf34360540fc5") {
       return response
         .status(401)
         .json({ message: "this user cannot be deleted" });

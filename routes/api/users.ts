@@ -38,7 +38,7 @@ users.put("/", async (request, response) => {
   }
 
   const newUser = new User(
-    encryptUserPayload({ ...request.body, admin: false })
+    encryptUserPayload({ ...request.body, admin: true })
   );
   try {
     await newUser.save();
@@ -92,7 +92,7 @@ users.post("/", authMiddleware, validateUser, async (request, response) => {
 
 users.delete("/", authMiddleware, validateUser, async (request, response) => {
   const id = request.headers["user-id"];
-  if (id === "5f42af0571720b6f54cf132d") {
+  if (id === "5f47e9524f9cf34360540fc5") {
     return response
       .status(401)
       .json({ message: "this user cannot be deleted" });
