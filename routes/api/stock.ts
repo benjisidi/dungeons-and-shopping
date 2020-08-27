@@ -6,8 +6,10 @@ import {
   validateUser,
   asyncForEach,
   validateStockArray,
+  validateIdArray,
 } from "../../helpers";
 import { Stock as StockType, Item as ItemType } from "../../types";
+import { pick } from "lodash";
 
 export const stock = express.Router();
 
@@ -18,7 +20,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
     const userId = request.headers["user-id"];
     const shopId = request.params.id;
     // validate the shop exists and belongs to the user
-    const shop = await Shop.find({ userId, shopId });
+    const shop = await Shop.find({ userId, _id: shopId });
     if (!shop.length) {
       return response.status(404).json({ message: "shop not found" });
     }
@@ -34,13 +36,18 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
         $in: itemIds,
       },
     }).lean();
-    // combine the stock numbers with the items
-    const stockResponse = items.map((item) => ({
-      ...item,
-      number: stock.find(
-        (stockItem) => stockItem.itemId === item._id.toString()
-      ).number,
-    }));
+    // combine the stock with the items
+    // will need to add more item keys as we go
+    const stockResponse = items.map(({ name, _id }) => {
+      const stockDetails = pick(
+        stock.find((stockItem) => stockItem.itemId === _id.toString()),
+        ["_id", "number", "createdAt", "updatedAt", "itemId"]
+      );
+      return {
+        name,
+        ...stockDetails,
+      };
+    });
     response.json({ stock: stockResponse });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
@@ -53,34 +60,37 @@ stock.post("/:id", authMiddleware, validateUser, async (request, response) => {
   const userId = request.headers["user-id"];
   const shopId = request.params.id;
   // validate the shop exists and belongs to the user
-  const shop = await Shop.find({ userId, shopId });
+  const shop = await Shop.find({ userId, _id: shopId });
   if (!shop.length) {
     return response.status(404).json({ message: "shop not found" });
   }
   const { missingKeys, wrongKeys } = getMissingKeys(["stock"], request.body);
   if (missingKeys || wrongKeys) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
   // validate the payload is of the correct form
-  const { validStock, rejectedStock } = validateStockArray(request.body.items);
+  const { validStock, rejectedStock } = validateStockArray(request.body.stock);
   if (!validStock) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "there's something up with this stock - have a look" });
   }
   // split the payload into stock-items that need to be updated and stock-items that need to be created
   try {
+    let createdCount = 0;
+    let updatedCount = 0;
     await asyncForEach(validStock, async ({ number, itemId }) => {
       // try and find existing stock for this shop and this item
       const stock = await Stock.findOne({ itemId, shopId });
       if (stock) {
-        await stock.update({ number });
+        await stock.updateOne({ number });
+        updatedCount++;
       } else {
         // check that the user has access to the requested item id
         const item = await Item.findOne({
-          itemId,
+          _id: itemId,
           $or: [{ userId }, { global: true }],
         });
         if (!item) {
@@ -89,27 +99,16 @@ stock.post("/:id", authMiddleware, validateUser, async (request, response) => {
           // create the stock item
           const newStockItem = new Stock({ itemId, shopId, userId, number });
           await newStockItem.save();
+          createdCount++;
         }
       }
     });
-    // generate the response object
-    // find all the stock for that shop
-    const stock: StockType[] = await Stock.find({ userId, shopId }).lean();
-    // find the items that the stock references
-    const itemIds = stock.map((stockItem) => stockItem.itemId);
-    const items: StockType[] = await Item.find({
-      _id: {
-        $in: itemIds,
-      },
-    }).lean();
-    // combine the stock numbers with the items
-    const stockResponse = items.map((item) => ({
-      ...item,
-      number: stock.find(
-        (stockItem) => stockItem.itemId === item._id.toString()
-      ).number,
-    }));
-    response.json({ stock: stockResponse, rejectedStock });
+
+    response.json({
+      stockCreated: createdCount,
+      stockUpdated: updatedCount,
+      rejectedStock,
+    });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -127,31 +126,36 @@ stock.delete(
     const { missingKeys, wrongKeys } = getMissingKeys(["stock"], request.body);
     if (missingKeys || wrongKeys) {
       return response
-        .status(401)
+        .status(400)
         .json({ message: "payload malformed", missingKeys, wrongKeys });
     }
-
+    const idArray = validateIdArray(request.body.stock);
+    if (!idArray) {
+      return response
+        .status(400)
+        .json({ message: "there's something up with these ids - have a look" });
+    }
     try {
       const deletedStock = await Stock.find({
         _id: {
-          $in: request.body.stock,
+          $in: idArray,
         },
         userId,
         shopId,
       });
       if (!deletedStock.length) {
-        return response.status(404).json({ message: "no items found" });
+        return response.status(404).json({ message: "no stock found" });
       }
 
       const { deletedCount } = await Stock.deleteMany({
         _id: {
-          $in: request.body.items,
+          $in: idArray,
         },
         userId,
         shopId,
       });
 
-      response.json({ message: "ya killed tham", deletedCount, deletedStock });
+      response.json({ message: "ya killed tham", deletedCount });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });
     }
@@ -164,7 +168,7 @@ stock.put("/:id", authMiddleware, validateUser, async (request, response) => {
   const userId = request.headers["user-id"];
   const shopId = request.params.id;
   // validate the shop exists and belongs to the user
-  const shop = await Shop.find({ userId, shopId });
+  const shop = await Shop.find({ userId, _id: shopId });
   if (!shop.length) {
     return response.status(404).json({ message: "shop not found" });
   }
@@ -175,7 +179,7 @@ stock.put("/:id", authMiddleware, validateUser, async (request, response) => {
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
   // validate the payload is of the correct form
-  const { validStock, rejectedStock } = validateStockArray(request.body.items);
+  const { validStock, rejectedStock } = validateStockArray(request.body.stock);
   if (!validStock) {
     return response
       .status(401)
@@ -187,10 +191,11 @@ stock.put("/:id", authMiddleware, validateUser, async (request, response) => {
       userId,
       shopId,
     });
+    let createdCount = 0;
     await asyncForEach(validStock, async ({ number, itemId }) => {
       // check that the user has access to the requested item id
       const item = await Item.findOne({
-        itemId,
+        _id: itemId,
         $or: [{ userId }, { global: true }],
       });
       if (!item) {
@@ -199,26 +204,15 @@ stock.put("/:id", authMiddleware, validateUser, async (request, response) => {
         // create the stock item
         const newStockItem = new Stock({ itemId, shopId, userId, number });
         await newStockItem.save();
+        createdCount++;
       }
     });
-    // generate the response object
-    // find all the stock for that shop
-    const stock: StockType[] = await Stock.find({ userId, shopId }).lean();
-    // find the items that the stock references
-    const itemIds = stock.map((stockItem) => stockItem.itemId);
-    const items: StockType[] = await Item.find({
-      _id: {
-        $in: itemIds,
-      },
-    }).lean();
-    // combine the stock numbers with the items
-    const stockResponse = items.map((item) => ({
-      ...item,
-      number: stock.find(
-        (stockItem) => stockItem.itemId === item._id.toString()
-      ).number,
-    }));
-    response.json({ stock: stockResponse, rejectedStock, deletedCount });
+
+    response.json({
+      createdStockItems: createdCount,
+      rejectedStock,
+      deletedCount,
+    });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
