@@ -1,12 +1,16 @@
 import { Schema, model } from "mongoose";
 
-export const ShopSchema = new Schema(
+const StockSchema = new Schema(
   {
-    name: {
+    number: {
+      type: Number,
+      required: true,
+    },
+    itemId: {
       type: String,
       required: true,
     },
-    userId: {
+    shopId: {
       type: String,
       required: true,
     },
@@ -14,4 +18,4 @@ export const ShopSchema = new Schema(
   { timestamps: true }
 );
 
-export const Shop = model("Shop", ShopSchema);
+export const Stock = model("Stock", StockSchema);
