@@ -36,6 +36,9 @@ export const authMiddleware = (
     request.headers["user-id"] = decoded.id;
     next();
   } catch (e) {
+    if (e.expiredAt) {
+      response.status(400).json({ message: "dis jwt too old" });
+    }
     response.status(400).json({ message: "wtf dis jwt" });
   }
 };
