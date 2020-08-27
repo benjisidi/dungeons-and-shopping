@@ -12,6 +12,14 @@ const Stock = new Schema({
 });
 
 export const ShopSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  userId: {
+    type: String,
+    required: true,
+  },
   stock: {
     type: [Stock],
   },

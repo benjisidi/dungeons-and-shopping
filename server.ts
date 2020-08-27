@@ -2,7 +2,7 @@
 import express from "express";
 import { keys } from "./config";
 import mongoose from "mongoose";
-import { users, auth } from "./routes/api";
+import { users, auth, shops, admin } from "./routes/api";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -11,6 +11,8 @@ const main = async () => {
   app.use(express.json());
   app.use("/api/users", users);
   app.use("/api/auth", auth);
+  app.use("/api/shops", shops);
+  app.use("/api/admin", admin);
   try {
     await mongoose.connect(keys.mongoURI, {
       useCreateIndex: true,

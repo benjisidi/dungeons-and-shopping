@@ -3,6 +3,7 @@ import { keys } from "../config";
 import bcrypt from "bcryptjs";
 import express from "express";
 import { JWTinfo } from "../types";
+import { User } from "../models";
 
 export const createToken = (id: string) => {
   const jwtDetails: JWTinfo = { id };
@@ -35,6 +36,46 @@ export const authMiddleware = (
     request.headers["user-id"] = decoded.id;
     next();
   } catch (e) {
+    if (e.expiredAt) {
+      response.status(400).json({ message: "dis jwt too old" });
+    }
     response.status(400).json({ message: "wtf dis jwt" });
+  }
+};
+
+export const validateUser = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
+  try {
+    const id = request.headers["user-id"];
+    const user = await User.findById(id);
+    if (!user) {
+      response.status(404).json({ message: "user not found" });
+    }
+    next();
+  } catch (e) {
+    response.status(400).json({ message: "something went wrong" });
+  }
+};
+
+export const adminOnly = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
+  const id = request.headers["user-id"];
+  try {
+    const user = await User.findById(id);
+    const { admin } = await user.toObject();
+    if (!admin) {
+      return response
+        .status(403)
+        .json({ message: "this user account is not admin" });
+    }
+    next();
+  } catch (e) {
+    response.status(400).json({ message: "something went wrong" });
   }
 };
