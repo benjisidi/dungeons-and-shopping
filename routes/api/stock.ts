@@ -8,7 +8,7 @@ import {
   validateStockArray,
   validateIdArray,
 } from "../../helpers";
-import { Stock as StockType, Item as ItemType } from "../../types";
+import { Stock as StockType, ItemSchema } from "../../types";
 import { pick } from "lodash";
 
 export const stock = express.Router();
@@ -31,7 +31,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
     }
     // find the items that the stock references
     const itemIds = stock.map((stockItem) => stockItem.itemId);
-    const items: ItemType[] = await Item.find({
+    const items: ItemSchema[] = await Item.find({
       _id: {
         $in: itemIds,
       },
@@ -54,7 +54,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
   }
 });
 
-// CREATE Stock for a shop
+// CREATE or UPDATE Stock for a shop
 
 stock.post("/:id", authMiddleware, validateUser, async (request, response) => {
   const userId = request.headers["user-id"];

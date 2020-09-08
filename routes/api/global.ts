@@ -1,14 +1,19 @@
 // routes for controlling global items (and maybe shop templates)
 import express from "express";
-import { Item, Stock } from "../../models";
+import { items as rawItems, generateItems } from "../../items";
+import { Item } from "../../models";
 import {
   getMissingKeys,
   authMiddleware,
   validateUser,
-  validateItemsArray,
   adminOnly,
   asyncForEach,
 } from "../../helpers";
+import {
+  createItems,
+  updateItems,
+  deleteItems,
+} from "../../helpers/item-helpers";
 
 export const global = express.Router();
 
@@ -43,25 +48,7 @@ global.put(
         .status(401)
         .json({ message: "payload malformed", missingKeys, wrongKeys });
     }
-    // check the item array is valid
-    const { validItems, rejectedItems } = validateItemsArray(
-      request.body.items
-    );
-    if (!validItems) {
-      return response.status(401).json({
-        message: "there's something up with these items - have a look",
-      });
-    }
-    const items = validItems.map((item) => ({
-      ...item,
-      global: true,
-    }));
-    try {
-      const createdItems = await Item.create(items);
-      response.json({ createdItems, rejectedItems });
-    } catch (e) {
-      response.status(400).json({ message: "something went wrong" });
-    }
+    await createItems(request.body.items, response);
   }
 );
 
@@ -80,31 +67,7 @@ global.delete(
         .json({ message: "payload malformed", missingKeys, wrongKeys });
     }
 
-    try {
-      const deletedItems = await Item.find({
-        _id: {
-          $in: request.body.items,
-        },
-      });
-      if (!deletedItems.length) {
-        return response.status(404).json({ message: "no items found" });
-      }
-      // delete all stock associated with those items
-      await Stock.deleteMany({
-        itemId: {
-          $in: request.body.items,
-        },
-      });
-      const { deletedCount } = await Item.deleteMany({
-        _id: {
-          $in: request.body.items,
-        },
-      });
-
-      response.json({ message: "ya killed tham", deletedCount, deletedItems });
-    } catch (e) {
-      response.status(400).json({ message: "something went wrong" });
-    }
+    await deleteItems(request.body.items, response);
   }
 );
 
@@ -122,28 +85,36 @@ global.post(
         .status(401)
         .json({ message: "payload malformed", missingKeys, wrongKeys });
     }
-    const { validItems, rejectedItems } = validateItemsArray(
-      request.body.items,
-      false,
-      true
-    );
-    if (!validItems) {
-      return response.status(401).json({
-        message: "there's something up with these items chief - have a look",
-      });
-    }
-    const updatedItems = [];
+    await updateItems(request.body.items, response);
+  }
+);
+
+global.patch(
+  "/",
+  authMiddleware,
+  validateUser,
+  adminOnly,
+  async (request, response) => {
+    let itemsCreated = 0;
+    let itemsUpdated = 0;
+    const items = generateItems(rawItems);
+
     try {
-      await asyncForEach(validItems, async ({ _id, ...payload }) => {
-        const updatedItem = await Item.findOneAndUpdate({ _id }, payload, {
-          new: true,
-        });
-        if (updatedItem) {
-          updatedItems.push(updatedItem);
+      await asyncForEach(items, async (item) => {
+        const existingItem = await Item.findOneAndUpdate(
+          { index: item.index, global: true },
+          item
+        );
+
+        if (existingItem) {
+          itemsUpdated++;
+        } else {
+          const newItem = new Item({ ...item, global: true });
+          await newItem.save();
+          itemsCreated++;
         }
       });
-
-      response.json({ updatedItems, rejectedItems });
+      response.json({ itemsUpdated, itemsCreated });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });
     }
