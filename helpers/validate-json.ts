@@ -1,10 +1,10 @@
 import difference from "lodash/difference";
-import { Item, Stock } from "../types";
+import { Stock, Item } from "../types";
 import { isArray } from "lodash";
 
 export const getMissingKeys = (
   requiredKeys: string[],
-  object: object
+  object: Record<string, unknown>
 ): { missingKeys: string[]; wrongKeys: string[] } => {
   const missingKeys = difference(requiredKeys, Object.keys(object));
   const wrongKeys = difference(Object.keys(object), requiredKeys);
@@ -15,17 +15,23 @@ export const getMissingKeys = (
   };
 };
 
-const itemKeys = ["name"];
-
-declare interface PossibleItem extends Partial<Item> {
-  [key: string]: unknown;
-}
+const itemKeys: Array<keyof (Item & { _id: string })> = [
+  "name",
+  "cost",
+  "weight",
+  "type",
+  "index",
+  "details",
+];
 
 export const validateItemsArray = (
-  items: PossibleItem[],
+  items: Record<string, unknown>[],
   exact = true,
   id = false
-): { rejectedItems: unknown[]; validItems?: Partial<Item>[] } => {
+): {
+  rejectedItems: unknown[];
+  validItems?: Partial<Item & { _id: string }>[];
+} => {
   if (!isArray(items)) {
     return { rejectedItems: null };
   }
@@ -34,8 +40,12 @@ export const validateItemsArray = (
   const validItems = [];
   items.forEach((item) => {
     const { missingKeys, wrongKeys } = getMissingKeys(keysToCheck, item);
+
     if (
-      (missingKeys && exact) ||
+      (missingKeys &&
+        exact &&
+        // honestly this seems like the best way to make weight optional but everything else required
+        !(missingKeys.length === 1 && missingKeys[0] === "weight")) ||
       wrongKeys ||
       (id && missingKeys && missingKeys.includes("_id"))
     ) {
