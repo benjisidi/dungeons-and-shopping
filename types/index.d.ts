@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 export * from "./items";
+export * from "./type-guards";
 
 export interface JWTinfo {
   id: string;
@@ -11,13 +12,6 @@ export interface Stock {
   global: boolean;
   itemId: string;
   shopId: string;
-  userId: string;
-}
-
-export interface Item {
-  _id: Types.ObjectId;
-  name: string;
-  global: boolean;
   userId: string;
 }
 
