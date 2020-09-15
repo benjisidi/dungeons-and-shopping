@@ -1,5 +1,5 @@
 import express from "express";
-import { Shop } from "../../models";
+import { Shop, Stock } from "../../models";
 import { getMissingKeys, authMiddleware, validateUser } from "../../helpers";
 import { Shop as ShopType } from "../../types";
 
@@ -11,12 +11,7 @@ shops.get("/", authMiddleware, validateUser, async (request, response) => {
   try {
     const userId = request.headers["user-id"];
     const shops: ShopType[] = await Shop.find({ userId }).lean();
-    const shopsResponse = shops.map(({ stock, ...shopData }) => ({
-      ...shopData,
-      items: stock.length,
-    }));
-
-    response.json({ shops: shopsResponse });
+    response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -29,20 +24,14 @@ shops.post("/", authMiddleware, validateUser, async (request, response) => {
   const { missingKeys, wrongKeys } = getMissingKeys(["name"], request.body);
   if (missingKeys || wrongKeys) {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
   try {
     const newShop = new Shop({ ...request.body, userId });
     await newShop.save();
-
     const shops: ShopType[] = await Shop.find({ userId }).lean();
-    const shopsResponse = shops.map(({ stock, ...shopData }) => ({
-      ...shopData,
-      items: stock.length,
-    }));
-
-    response.json({ shops: shopsResponse });
+    response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -68,8 +57,8 @@ shops.post("/:id", authMiddleware, validateUser, async (request, response) => {
     if (!shop) {
       return response.status(404).json({ message: "shop not found" });
     }
-    const { stock, ...shopData } = await shop.toObject();
-    response.json({ ...shopData, items: stock.length });
+
+    response.json(shop);
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
@@ -90,7 +79,9 @@ shops.delete(
       if (!shop) {
         return response.status(404).json({ message: "shop not found" });
       }
-      response.json({ message: "ya killed ham" });
+      // delete all stock for that shop
+      await Stock.deleteMany({ userId, shopId });
+      response.json({ message: "ya killed ham, an hus stacks" });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });
     }

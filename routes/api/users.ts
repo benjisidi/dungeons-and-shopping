@@ -1,5 +1,5 @@
 import express from "express";
-import { User, Shop } from "../../models";
+import { User, Shop, Stock, Item } from "../../models";
 import {
   getMissingKeys,
   encryptUserPayload,
@@ -92,7 +92,8 @@ users.post("/", authMiddleware, validateUser, async (request, response) => {
 
 users.delete("/", authMiddleware, validateUser, async (request, response) => {
   const id = request.headers["user-id"];
-  if (id === "5f42af0571720b6f54cf132d") {
+  // you cannot delete the original admin user (so someone can always do admin things)
+  if (id === "5f47e9524f9cf34360540fc5") {
     return response
       .status(401)
       .json({ message: "this user cannot be deleted" });
@@ -102,8 +103,10 @@ users.delete("/", authMiddleware, validateUser, async (request, response) => {
     if (!user) {
       return response.status(401).json({ message: "user not found" });
     }
-    // delete all shops for that user
+    // delete all shops, user items and stock for that user
     await Shop.deleteMany({ userId: id });
+    await Stock.deleteMany({ userId: id });
+    await Item.deleteMany({ userId: id, global: false });
     response.json({ message: "ya killed ham, an hus shaps" });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
