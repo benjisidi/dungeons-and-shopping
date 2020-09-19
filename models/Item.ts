@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Schema, model } from "mongoose";
-import { itemType } from "../types";
+import {
+  GearModel,
+  itemType,
+  ToolModel,
+  VehicleModel,
+  WeaponModel,
+  ArmourModel,
+  ItemModel,
+  PackModel,
+} from "../types";
 
 const itemTypes: itemType[] = [
   "gear",
@@ -39,8 +48,9 @@ export const ItemSchema = new Schema(
   },
   { timestamps: true, discriminatorKey: "type" }
 );
-export const Item = model("Item", ItemSchema);
-export const Gear = Item.discriminator(
+export const Item = model<ItemModel>("Item", ItemSchema);
+
+export const Gear = Item.discriminator<GearModel>(
   "gear",
   new Schema({
     details: {
@@ -63,7 +73,7 @@ export const Gear = Item.discriminator(
   })
 );
 
-export const Pack = Item.discriminator(
+export const Pack = Item.discriminator<PackModel>(
   "pack",
   new Schema({
     details: {
@@ -80,7 +90,7 @@ export const Pack = Item.discriminator(
   })
 );
 
-export const Tool = Item.discriminator(
+export const Tool = Item.discriminator<ToolModel>(
   "tool",
   new Schema({
     details: {
@@ -101,7 +111,7 @@ export const Tool = Item.discriminator(
   })
 );
 
-export const Vehicle = Item.discriminator(
+export const Vehicle = Item.discriminator<VehicleModel>(
   "vehicle",
   new Schema({
     details: {
@@ -132,7 +142,7 @@ const Damage = new Schema(
   { _id: false }
 );
 
-export const Weapon = Item.discriminator(
+export const Weapon = Item.discriminator<WeaponModel>(
   "weapon",
   new Schema({
     details: {
@@ -170,7 +180,8 @@ const ArmourClass = new Schema(
   },
   { _id: false }
 );
-export const Armour = Item.discriminator(
+
+export const Armour = Item.discriminator<ArmourModel>(
   "armour",
   new Schema({
     details: {

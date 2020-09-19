@@ -1,8 +1,13 @@
 import { Schema, model } from "mongoose";
+import { Stock as IStock } from "../types";
 
 const StockSchema = new Schema(
   {
     number: {
+      type: Number,
+      required: true,
+    },
+    max: {
       type: Number,
       required: true,
     },
@@ -22,4 +27,4 @@ const StockSchema = new Schema(
   { timestamps: true }
 );
 
-export const Stock = model("Stock", StockSchema);
+export const Stock = model<IStock>("Stock", StockSchema);
