@@ -27,13 +27,14 @@ export const repopulateShop = async (
 ): Promise<StockModel[]> => {
   // get all stock for a shop and up the number
   const stock = await Stock.find({ shopId });
-  await asyncForEach(stock, async ({ number, max, save }) => {
+  await asyncForEach(stock, async (stockEntry) => {
+    const { number, max } = stockEntry;
     const newStockLevel = Math.max(
       max,
       number + Math.floor(Math.random() * (max - number) * elapsedTime)
     );
-    number = newStockLevel;
-    await save();
+    stockEntry.number = newStockLevel;
+    await stockEntry.save();
   });
   return stock;
 };

@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { Stock as IStock } from "../types";
+import { StockModel } from "../types";
 
 const StockSchema = new Schema(
   {
@@ -27,4 +27,4 @@ const StockSchema = new Schema(
   { timestamps: true }
 );
 
-export const Stock = model<IStock>("Stock", StockSchema);
+export const Stock = model<StockModel>("Stock", StockSchema);

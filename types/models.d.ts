@@ -20,10 +20,24 @@ export interface UserModel extends Document {
   username: string;
   admin: boolean;
 }
-export interface ItemModel extends Item, Document {}
-export interface GearModel extends Document, Gear {}
-export interface PackModel extends Document, EquipmentPack {}
-export interface ToolModel extends Document, Tool {}
-export interface VehicleModel extends Document, Vehicle {}
-export interface WeaponModel extends Document, Weapon {}
-export interface ArmourModel extends Document, Armour {}
+export interface ItemModel extends Item, Document {
+  global: boolean;
+}
+export interface GearModel extends Document, Gear {
+  global: boolean;
+}
+export interface PackModel extends Document, EquipmentPack {
+  global: boolean;
+}
+export interface ToolModel extends Document, Tool {
+  global: boolean;
+}
+export interface VehicleModel extends Document, Vehicle {
+  global: boolean;
+}
+export interface WeaponModel extends Document, Weapon {
+  global: boolean;
+}
+export interface ArmourModel extends Document, Armour {
+  global: boolean;
+}

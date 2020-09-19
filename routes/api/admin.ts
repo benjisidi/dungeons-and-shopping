@@ -9,7 +9,6 @@ import {
   encryptUserPayload,
 } from "../../helpers";
 
-import { User as UserType } from "../../types";
 export const admin = express.Router();
 
 // GET all users
@@ -21,7 +20,7 @@ admin.get(
   adminOnly,
   async (request, response) => {
     try {
-      const users: UserType[] = await User.find({}, "-password").lean();
+      const users = await User.find({}, "-password").lean();
       response.json({ users });
     } catch (e) {
       response.status(400).json({ message: "something went wrong" });

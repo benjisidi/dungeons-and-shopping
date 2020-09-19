@@ -91,7 +91,7 @@ users.post("/", authMiddleware, validateUser, async (request, response) => {
 // DELETE User
 
 users.delete("/", authMiddleware, validateUser, async (request, response) => {
-  const id = request.headers["user-id"];
+  const id = request.headers["user-id"] as string;
   // you cannot delete the original admin user (so someone can always do admin things)
   if (id === "5f47e9524f9cf34360540fc5") {
     return response

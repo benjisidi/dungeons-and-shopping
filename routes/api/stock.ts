@@ -45,7 +45,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
     const stockResponse = items.map(({ _id, ...itemDetails }) => {
       const stockDetails = pick(
         stock.find((stockItem) => stockItem.itemId === _id.toString()),
-        ["_id", "number", "createdAt", "updatedAt", "itemId"]
+        ["_id", "number", "createdAt", "updatedAt", "itemId", "max"]
       );
       return {
         ...stockDetails,
@@ -54,6 +54,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
     });
     response.json({ stock: stockResponse });
   } catch (e) {
+    console.log(e);
     response.status(400).json({ message: "something went wrong" });
   }
 });
