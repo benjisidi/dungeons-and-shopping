@@ -1,7 +1,11 @@
 import express from "express";
 import { Shop, Stock } from "../../models";
-import { getMissingKeys, authMiddleware, validateUser } from "../../helpers";
-import { Shop as ShopType } from "../../types";
+import {
+  getMissingKeys,
+  authMiddleware,
+  validateUser,
+  populateShop,
+} from "../../helpers";
 
 export const shops = express.Router();
 
@@ -9,8 +13,8 @@ export const shops = express.Router();
 
 shops.get("/", authMiddleware, validateUser, async (request, response) => {
   try {
-    const userId = request.headers["user-id"];
-    const shops: ShopType[] = await Shop.find({ userId }).lean();
+    const userId = request.headers["user-id"] as string;
+    const shops = await Shop.find({ userId }).lean();
     response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
@@ -20,7 +24,7 @@ shops.get("/", authMiddleware, validateUser, async (request, response) => {
 // CREATE Shop
 
 shops.post("/", authMiddleware, validateUser, async (request, response) => {
-  const userId = request.headers["user-id"];
+  const userId = request.headers["user-id"] as string;
   const { missingKeys, wrongKeys } = getMissingKeys(["name"], request.body);
   if (missingKeys || wrongKeys) {
     return response
@@ -30,7 +34,9 @@ shops.post("/", authMiddleware, validateUser, async (request, response) => {
   try {
     const newShop = new Shop({ ...request.body, userId });
     await newShop.save();
-    const shops: ShopType[] = await Shop.find({ userId }).lean();
+    // allocate some stock to the shop
+    await populateShop(newShop._id, userId);
+    const shops = await Shop.find({ userId }).lean();
     response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
@@ -41,7 +47,7 @@ shops.post("/", authMiddleware, validateUser, async (request, response) => {
 
 shops.post("/:id", authMiddleware, validateUser, async (request, response) => {
   const shopId = request.params.id;
-  const userId = request.headers["user-id"];
+  const userId = request.headers["user-id"] as string;
   const { wrongKeys } = getMissingKeys(["name"], request.body);
   if (wrongKeys) {
     return response
@@ -72,7 +78,7 @@ shops.delete(
   validateUser,
   async (request, response) => {
     const shopId = request.params.id;
-    const userId = request.headers["user-id"];
+    const userId = request.headers["user-id"] as string;
 
     try {
       const shop = await Shop.findOneAndDelete({ _id: shopId, userId });

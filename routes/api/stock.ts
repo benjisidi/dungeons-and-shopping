@@ -7,8 +7,9 @@ import {
   asyncForEach,
   validateStockArray,
   validateIdArray,
+  repopulateShop,
 } from "../../helpers";
-import { Stock as StockType, ItemSchema } from "../../types";
+
 import { pick } from "lodash";
 
 export const stock = express.Router();
@@ -17,7 +18,8 @@ export const stock = express.Router();
 
 stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
   try {
-    const userId = request.headers["user-id"];
+    const elapsedTime = parseInt((request.query.time as string) || "0");
+    const userId = request.headers["user-id"] as string;
     const shopId = request.params.id;
     // validate the shop exists and belongs to the user
     const shop = await Shop.find({ userId, _id: shopId });
@@ -25,27 +27,29 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
       return response.status(404).json({ message: "shop not found" });
     }
     // find all the stock for that shop
-    const stock: StockType[] = await Stock.find({ userId, shopId }).lean();
+
+    const stock = elapsedTime
+      ? await repopulateShop(shopId, elapsedTime)
+      : await Stock.find({ userId, shopId }).lean();
     if (!stock.length) {
       return response.json({ message: "yer shaps empty laddy" });
     }
     // find the items that the stock references
     const itemIds = stock.map((stockItem) => stockItem.itemId);
-    const items: ItemSchema[] = await Item.find({
+    const items = await Item.find({
       _id: {
         $in: itemIds,
       },
     }).lean();
     // combine the stock with the items
-    // will need to add more item keys as we go
-    const stockResponse = items.map(({ name, _id }) => {
+    const stockResponse = items.map(({ _id, ...itemDetails }) => {
       const stockDetails = pick(
         stock.find((stockItem) => stockItem.itemId === _id.toString()),
         ["_id", "number", "createdAt", "updatedAt", "itemId"]
       );
       return {
-        name,
         ...stockDetails,
+        ...itemDetails,
       };
     });
     response.json({ stock: stockResponse });
@@ -57,7 +61,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
 // CREATE or UPDATE Stock for a shop
 
 stock.post("/:id", authMiddleware, validateUser, async (request, response) => {
-  const userId = request.headers["user-id"];
+  const userId = request.headers["user-id"] as string;
   const shopId = request.params.id;
   // validate the shop exists and belongs to the user
   const shop = await Shop.find({ userId, _id: shopId });
@@ -121,7 +125,7 @@ stock.delete(
   authMiddleware,
   validateUser,
   async (request, response) => {
-    const userId = request.headers["user-id"];
+    const userId = request.headers["user-id"] as string;
     const shopId = request.params.id;
     const { missingKeys, wrongKeys } = getMissingKeys(["stock"], request.body);
     if (missingKeys || wrongKeys) {
@@ -165,7 +169,7 @@ stock.delete(
 // PUT Stock
 
 stock.put("/:id", authMiddleware, validateUser, async (request, response) => {
-  const userId = request.headers["user-id"];
+  const userId = request.headers["user-id"] as string;
   const shopId = request.params.id;
   // validate the shop exists and belongs to the user
   const shop = await Shop.find({ userId, _id: shopId });
