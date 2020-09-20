@@ -8,12 +8,10 @@ import {
   validateUser,
   adminOnly,
   asyncForEach,
-} from "../../helpers";
-import {
   createItems,
   updateItems,
   deleteItems,
-} from "../../helpers/item-helpers";
+} from "../../helpers";
 
 export const global = express.Router();
 

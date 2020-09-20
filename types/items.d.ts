@@ -1,5 +1,3 @@
-import { Types } from "mongoose";
-
 export type rawItemType =
   | "Adventuring Gear"
   | "Tools"
@@ -137,12 +135,6 @@ export interface RawArmour extends RawBaseItem, ArmourDetails {
 
 type itemType = "gear" | "pack" | "tool" | "vehicle" | "weapon" | "armour";
 
-export interface ItemParams {
-  _id: Types.ObjectId;
-  global: boolean;
-  userId: string;
-}
-
 interface BaseItem {
   name: string;
   cost: {
@@ -183,16 +175,16 @@ export interface Armour extends BaseItem {
   type: "armour";
   details: ArmourDetails;
 }
-
-export type ItemSchema =
-  | (Gear & ItemParams)
-  | (EquipmentPack & ItemParams)
-  | (Tool & ItemParams)
-  | (Vehicle & ItemParams)
-  | (Weapon & ItemParams)
-  | (Armour & ItemParams);
-
-export type Item = Gear | EquipmentPack | Tool | Vehicle | Weapon | Armour;
+export interface Item extends BaseItem {
+  type: itemType;
+  details:
+    | ArmourDetails
+    | WeaponDetails
+    | VehicleDetails
+    | ToolDetails
+    | GearDetails
+    | EquipmentPackDetails;
+}
 
 export type RawItem =
   | RawGear
@@ -202,15 +194,10 @@ export type RawItem =
   | RawWeapon
   | RawArmour;
 
-export interface TransformItem {
-  (item: RawGear, detailsKeys: Array<keyof GearDetails>): Gear;
-  (
-    item: RawEquipmentPack,
-    detailsKeys: Array<keyof EquipmentPackDetails>
-  ): EquipmentPack;
-  (item: RawTool, detailsKeys: Array<keyof ToolDetails>): Tool;
-  (item: RawVehicle, detailsKeys: Array<keyof VehicleDetails>): Vehicle;
-  (item: RawWeapon, detailsKeys: Array<keyof WeaponDetails>): Weapon;
-  (item: RawArmour, detailsKeys: Array<keyof ArmourDetails>): Armour;
-  (item: RawItem, detailsKeys: string[]): Item;
-}
+export type itemDetailKeys =
+  | Array<keyof GearDetails>
+  | Array<keyof EquipmentPackDetails>
+  | Array<keyof ToolDetails>
+  | Array<keyof VehicleDetails>
+  | Array<keyof WeaponDetails>
+  | Array<keyof ArmourDetails>;

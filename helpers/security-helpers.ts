@@ -37,7 +37,7 @@ export const authMiddleware = (
     next();
   } catch (e) {
     if (e.expiredAt) {
-      response.status(400).json({ message: "dis jwt too old" });
+      return response.status(400).json({ message: "dis jwt too old" });
     }
     response.status(400).json({ message: "wtf dis jwt" });
   }

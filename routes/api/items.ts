@@ -1,12 +1,13 @@
 import express from "express";
 import { Item } from "../../models";
-import { getMissingKeys, authMiddleware, validateUser } from "../../helpers";
-import { Item as ItemType } from "../../types";
 import {
+  getMissingKeys,
+  authMiddleware,
+  validateUser,
   createItems,
   updateItems,
   deleteItems,
-} from "../../helpers/item-helpers";
+} from "../../helpers";
 
 export const items = express.Router();
 
@@ -15,7 +16,7 @@ export const items = express.Router();
 items.get("/", authMiddleware, validateUser, async (request, response) => {
   try {
     const userId = request.headers["user-id"];
-    const items: ItemType[] = await Item.find({
+    const items = await Item.find({
       $or: [{ userId }, { global: true }],
     }).lean();
 

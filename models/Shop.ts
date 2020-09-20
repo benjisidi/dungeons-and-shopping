@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { ShopModel } from "../types";
 
 export const ShopSchema = new Schema(
   {
@@ -14,4 +15,4 @@ export const ShopSchema = new Schema(
   { timestamps: true }
 );
 
-export const Shop = model("Shop", ShopSchema);
+export const Shop = model<ShopModel>("Shop", ShopSchema);

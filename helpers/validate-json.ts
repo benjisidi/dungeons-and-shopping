@@ -1,5 +1,5 @@
 import difference from "lodash/difference";
-import { Stock, Item } from "../types";
+import { Item } from "../types";
 import { isArray } from "lodash";
 
 export const getMissingKeys = (
@@ -30,7 +30,7 @@ export const validateItemsArray = (
   id = false
 ): {
   rejectedItems: unknown[];
-  validItems?: Partial<Item & { _id: string }>[];
+  validItems?: Array<Item & { _id: string }>;
 } => {
   if (!isArray(items)) {
     return { rejectedItems: null };
@@ -61,14 +61,11 @@ export const validateItemsArray = (
   };
 };
 
-declare interface PossibleStock extends Partial<Stock> {
-  [key: string]: unknown;
-}
 export const validateStockArray = (
-  stock: PossibleStock[]
+  stock: Record<string, unknown>[]
 ): {
   rejectedStock: unknown[];
-  validStock?: { number: number; itemId: string }[];
+  validStock?: { number: number; itemId: string; max: number }[];
 } => {
   if (!isArray(stock)) {
     return { rejectedStock: null };
