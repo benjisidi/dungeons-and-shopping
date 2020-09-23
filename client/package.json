@@ -5,7 +5,7 @@
   "main": "",
   "author": "Benji Sidi <benji.sidi@gmail.com> | Truman Wright <>",
   "scripts": {
-    "dev": "webpack-dev-server --open",
+    "dev": "webpack-dev-server",
     "build": "webpack"
   },
   "devDependencies": {
