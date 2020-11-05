@@ -32,7 +32,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
       ? await repopulateShop(shopId, elapsedTime)
       : await Stock.find({ userId, shopId }).lean();
     if (!stock.length) {
-      return response.json({ message: "yer shaps empty laddy" });
+      return response.json({ stock: [] });
     }
     // find the items that the stock references
     const itemIds = stock.map((stockItem) => stockItem.itemId);
@@ -48,13 +48,12 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
         ["_id", "number", "createdAt", "updatedAt", "itemId", "max"]
       );
       return {
-        ...stockDetails,
         ...itemDetails,
+        ...stockDetails,
       };
     });
     response.json({ stock: stockResponse });
   } catch (e) {
-    console.log(e);
     response.status(400).json({ message: "something went wrong" });
   }
 });

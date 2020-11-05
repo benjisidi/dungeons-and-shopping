@@ -63,8 +63,8 @@ shops.post("/:id", authMiddleware, validateUser, async (request, response) => {
     if (!shop) {
       return response.status(404).json({ message: "shop not found" });
     }
-
-    response.json(shop);
+    const shops = await Shop.find({ userId }).lean();
+    response.json({ shops });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }

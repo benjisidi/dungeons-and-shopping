@@ -22,17 +22,21 @@ auth.post("/login", async (request, response) => {
   if (!user) {
     return response.status(404).json({ message: "user not found" });
   }
-  const { _id, username, password, email } = await user.toObject();
-  const passwordIsValid = await bcrypt.compare(request.body.password, password);
+  const loggedInUser = await user.toObject();
+  const passwordIsValid = await bcrypt.compare(
+    request.body.password,
+    user.password
+  );
   if (!passwordIsValid) {
     return response
       .status(401)
-      .json({ message: `password not valid for ${email}` });
+      .json({ message: `password not valid for ${user.username}` });
   }
+  delete loggedInUser.password;
   try {
     response.json({
-      token: createToken(_id),
-      user: { _id, username, email },
+      token: createToken(user._id),
+      user: loggedInUser,
     });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
