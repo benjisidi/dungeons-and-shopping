@@ -1,4 +1,10 @@
-import { ShopModel, ItemModel, UserModel, Shop, Stock } from "../../../types";
+import {
+  ShopModel,
+  ItemModel,
+  UserModel,
+  Shop,
+  Stock,
+} from "../../../../types";
 
 interface DetailedStock extends ItemModel, Stock {}
 
