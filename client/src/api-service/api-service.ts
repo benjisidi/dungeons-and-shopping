@@ -1,4 +1,4 @@
-import { Stock } from "../../types";
+import { Stock } from "../../../types";
 import { processRequest } from "./api-helpers/process-request";
 
 export const register = async (
