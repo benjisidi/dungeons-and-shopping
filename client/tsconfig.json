@@ -1,16 +1,24 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "module": "commonjs",
+    "module": "esnext",
     "noImplicitAny": true,
     "outDir": "./build/",
     "preserveConstEnums": true,
     "removeComments": true,
     "sourceMap": true,
     "target": "es5",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "importsNotUsedAsValues": "error",
+    "moduleResolution": "node",
+    "paths": {}
   },
-  "include": [
-    "src/components/index.tsx"
-  ]
+  "include": ["src/index.tsx"]
 }
