@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "The frontend for the dungeons-and-shopping webapp",
   "main": "",
-  "author": "Benji Sidi <benji.sidi@gmail.com> | Truman Wright <>",
+  "author": "Benji Sidi <benji.sidi@gmail.com> | Truman Wright <trumanwright13@gmail.com>",
+  "license": "MIT",
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack"

@@ -1,25 +1,29 @@
 import { Armour, EquipmentPack, Gear, Item, Tool, Vehicle, Weapon } from ".";
 import { Document } from "mongoose";
 
-export interface StockModel extends Document {
+export interface Stock {
   number: number;
   max: number;
   itemId: string;
   shopId: string;
   userId: string;
 }
-
-export interface ShopModel extends Document {
+export interface Shop {
   name: string;
   userId: string;
 }
-
-export interface UserModel extends Document {
+export interface User {
   password: string;
   email: string;
   username: string;
   admin: boolean;
 }
+export interface StockModel extends Stock, Document {}
+
+export interface ShopModel extends Shop, Document {}
+
+export interface UserModel extends User, Document {}
+
 export interface ItemModel extends Item, Document {
   global: boolean;
 }

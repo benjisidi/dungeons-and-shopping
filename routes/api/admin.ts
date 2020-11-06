@@ -45,11 +45,28 @@ admin.post(
         .status(401)
         .json({ message: "payload malformed", missingKeys, wrongKeys });
     }
+    const { username, email } = request.body;
 
-    const newUser = new User(
-      encryptUserPayload({ ...request.body, admin: true })
-    );
     try {
+      const usernameExists = !!(await User.findOne({ username }));
+      const emailExists = !!(await User.findOne({ email }));
+      switch (true) {
+        case usernameExists && emailExists:
+          return response.status(409).json({
+            message: `listen pal, both ${username} and ${email} are taken`,
+          });
+        case emailExists:
+          return response.status(409).json({
+            message: `listen pal, ${email} is taken`,
+          });
+        case usernameExists:
+          return response.status(409).json({
+            message: `listen pal, ${username} is taken`,
+          });
+      }
+      const newUser = new User(
+        encryptUserPayload({ ...request.body, admin: true })
+      );
       await newUser.save();
       const user = await newUser.toObject();
       delete user.password;
@@ -58,11 +75,6 @@ admin.post(
         user,
       });
     } catch (e) {
-      if (e.code === 11000) {
-        return response.status(409).json({
-          message: `an account for ${request.body.username} or ${request.body.email} (or both) already exists`,
-        });
-      }
       response.status(400).json({ message: "something went wrong" });
     }
   }
