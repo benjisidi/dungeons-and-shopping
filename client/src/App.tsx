@@ -9,7 +9,7 @@ export const App = () => {
       <Switch>
         <Route path="/about">
           <h1>
-            Hello, World! Click here for <Link to="/">Home</Link>
+            Hello, World!!! Click here for <Link to="/">Home</Link>
           </h1>
           <Button onClick={() => setAlert(true)}>Click me!</Button>
           <Alert

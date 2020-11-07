@@ -3,6 +3,9 @@ node_modules/
 lib/
 dist/
 .next/
+.build
+build
+web_modules
 
 # Env files
 .env
