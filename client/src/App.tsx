@@ -1,32 +1,38 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { Button, Alert, Intent } from "@blueprintjs/core";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  RouteProps,
+} from "react-router-dom";
+
+import { Forbidden, NotFound, Shops, Landing } from "./pages";
+
+interface GuardedRouteProps extends RouteProps {
+  loggedIn: boolean;
+}
+const GuardedRoute = ({ loggedIn, component, ...props }: GuardedRouteProps) => (
+  <Route {...props} component={loggedIn ? component : Forbidden} />
+);
 
 export const App = () => {
-  const [alert, setAlert] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   return (
     <Router>
       <Switch>
-        <Route path="/about">
-          <h1>
-            Hello, World!!! Click here for <Link to="/">Home</Link>
-          </h1>
-          <Button onClick={() => setAlert(true)}>Click me!</Button>
-          <Alert
-            cancelButtonText="Cancel"
-            confirmButtonText="Cool brah"
-            intent={Intent.SUCCESS}
-            isOpen={alert}
-            onClose={() => setAlert(false)}
-          >
-            You clicked da button
-          </Alert>
-        </Route>
-        <Route path="/">
-          <h1>
-            Hello, World! Click here for <Link to="/about">About</Link>
-          </h1>
-        </Route>
+        <Route
+          exact
+          path="/"
+          component={() => (
+            <Landing loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+          )}
+        />
+        <GuardedRoute
+          loggedIn={loggedIn}
+          path="/shops"
+          component={() => <Shops />}
+        />
+        <Route path="*" component={() => <NotFound />} />
       </Switch>
     </Router>
   );
