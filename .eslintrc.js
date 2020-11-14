@@ -4,7 +4,7 @@ module.exports = {
     ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
     sourceType: "module", // Allows for the use of imports
   },
-  plugins: ["react", "prettier"],
+  plugins: ["react", "prettier", "simple-import-sort"],
   extends: [
     "prettier",
     "plugin:react/recommended",
@@ -17,5 +17,6 @@ module.exports = {
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
     "prettier/prettier": ["error", { endOfLine: "auto" }],
+    "simple-import-sort/sort": "error",
   },
 };
