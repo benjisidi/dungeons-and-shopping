@@ -1,12 +1,14 @@
 import express from "express";
-import { User, Shop, Stock, Item } from "../../models";
+import { isEmail } from "validator";
+
 import {
-  getMissingKeys,
-  encryptUserPayload,
-  createToken,
   authMiddleware,
+  createToken,
+  encryptUserPayload,
+  getMissingKeys,
   validateUser,
 } from "../../helpers";
+import { Item, Shop, Stock, User } from "../../models";
 
 export const users = express.Router();
 
@@ -37,6 +39,11 @@ users.put("/", async (request, response) => {
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
   const { username, email } = request.body;
+  if (!isEmail(email)) {
+    return response
+      .status(401)
+      .json({ message: `${email} is not a valid email address` });
+  }
   try {
     const usernameExists = !!(await User.findOne({ username }));
     const emailExists = !!(await User.findOne({ email }));

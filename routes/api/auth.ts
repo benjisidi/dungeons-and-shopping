@@ -1,7 +1,8 @@
-import express from "express";
-import { User } from "../../models";
-import { getMissingKeys, createToken } from "../../helpers";
 import bcrypt from "bcryptjs";
+import express from "express";
+
+import { createToken, getMissingKeys } from "../../helpers";
+import { User } from "../../models";
 
 export const auth = express.Router();
 
@@ -9,7 +10,7 @@ export const auth = express.Router();
 
 auth.post("/login", async (request, response) => {
   const { missingKeys, wrongKeys } = getMissingKeys(
-    ["email", "password"],
+    ["username", "password"],
     request.body
   );
   if (missingKeys || wrongKeys) {
@@ -18,7 +19,7 @@ auth.post("/login", async (request, response) => {
       .json({ message: "payload malformed", missingKeys, wrongKeys });
   }
 
-  const user = await User.findOne({ email: request.body.email });
+  const user = await User.findOne({ username: request.body.username });
   if (!user) {
     return response.status(404).json({ message: "user not found" });
   }
