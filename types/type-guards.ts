@@ -1,11 +1,11 @@
-import {
-  RawItem,
-  RawGear,
-  RawEquipmentPack,
-  RawWeapon,
+import type {
   RawArmour,
+  RawEquipmentPack,
+  RawGear,
+  RawItem,
   RawTool,
   RawVehicle,
+  RawWeapon,
 } from ".";
 
 export const isGear = (item: RawItem): item is RawGear =>
@@ -13,6 +13,7 @@ export const isGear = (item: RawItem): item is RawGear =>
   item["gear_category"] !== "Equipment Pack";
 
 export const isEquipmentPack = (item: RawItem): item is RawEquipmentPack =>
+  item["equipment_category"] === "Adventuring Gear" &&
   item["gear_category"] === "Equipment Pack";
 
 export const isWeapon = (item: RawItem): item is RawWeapon =>
