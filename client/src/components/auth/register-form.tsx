@@ -5,6 +5,7 @@ import { MutateFunction, useMutation } from "react-query";
 
 import { register as registerUser } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
+import { AppToaster } from "../../common/toaster";
 import { LockButton } from "./form-elements";
 
 const submitDetails = (
@@ -17,7 +18,8 @@ const submitDetails = (
       email: string;
     },
     unknown
-  >
+  >,
+  onSubmit: () => void
 ) => async ({
   password,
   username,
@@ -27,10 +29,22 @@ const submitDetails = (
   username: string;
   email: string;
 }) => {
-  await sendDetails({ password, username, email });
+  await sendDetails(
+    { password, username, email },
+    {
+      onSuccess: () => {
+        onSubmit();
+        AppToaster.show({
+          message: `Successfully created ${username} account!`,
+          intent: Intent.SUCCESS,
+          icon: "tick-circle",
+        });
+      },
+    }
+  );
 };
 
-export const RegisterForm = () => {
+export const RegisterForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const { register, handleSubmit, errors } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const [sendDetails, { isLoading, isError, error }] = useMutation<
@@ -44,7 +58,7 @@ export const RegisterForm = () => {
   >(registerUser);
 
   return (
-    <form onSubmit={handleSubmit(submitDetails(sendDetails))}>
+    <form onSubmit={handleSubmit(submitDetails(sendDetails, onSubmit))}>
       <div
         style={{
           marginRight: "auto",

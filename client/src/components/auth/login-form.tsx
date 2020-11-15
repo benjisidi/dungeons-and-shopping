@@ -5,8 +5,8 @@ import { MutateFunction, useMutation } from "react-query";
 
 import { login } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
+import { AppToaster } from "../../common/toaster";
 import { ClearButton, LockButton } from "./form-elements";
-
 const submitDetails = (
   sendDetails: MutateFunction<
     void,
@@ -16,12 +16,25 @@ const submitDetails = (
       password: string;
     },
     unknown
-  >
+  >,
+  onSubmit: () => void
 ) => async ({ password, username }: { password: string; username: string }) => {
-  await sendDetails({ password, username });
+  await sendDetails(
+    { password, username },
+    {
+      onSuccess: () => {
+        onSubmit();
+        AppToaster.show({
+          message: `Welcome, ${username}!`,
+          intent: Intent.SUCCESS,
+          icon: "tick-circle",
+        });
+      },
+    }
+  );
 };
 
-export const LoginForm = () => {
+export const LoginForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const { register, handleSubmit, errors, setValue } = useForm({
     defaultValues: {
       username: localStorage.getItem("savedUser"),
@@ -39,7 +52,7 @@ export const LoginForm = () => {
   >(login);
 
   return (
-    <form onSubmit={handleSubmit(submitDetails(sendDetails))}>
+    <form onSubmit={handleSubmit(submitDetails(sendDetails, onSubmit))}>
       <div
         style={{
           marginRight: "auto",
