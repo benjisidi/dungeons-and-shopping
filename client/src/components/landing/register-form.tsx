@@ -48,10 +48,15 @@ const submitDetails = (
 export const RegisterForm = () => {
   const { register, handleSubmit, errors } = useForm();
   const [showPassword, setShowPassword] = useState(false);
-  const [sendDetails, { isLoading, isError, error }] = useMutation(
-    registerUser
-  );
-  const message = (error as RequestError)?.message || "";
+  const [sendDetails, { isLoading, isError, error }] = useMutation<
+    void,
+    RequestError,
+    {
+      username: string;
+      password: string;
+      email: string;
+    }
+  >(registerUser);
 
   return (
     <form onSubmit={handleSubmit(submitDetails(sendDetails))}>
@@ -111,7 +116,9 @@ export const RegisterForm = () => {
             type={showPassword ? "text" : "password"}
           />
         </div>
-        <p style={{ color: "red", height: 18 }}>{isError ? message : ""}</p>
+        <p style={{ color: "red", height: 18 }}>
+          {isError ? error?.message : ""}
+        </p>
         <Button loading={isLoading} disabled={isLoading} type="submit">
           Submit
         </Button>

@@ -10,7 +10,6 @@ const LoginDiv = styled.div`
   top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   display: flex;
   flex-direction: column;
 `;
@@ -18,13 +17,7 @@ const LoginButton = styled(Button)`
   margin-top: 5px;
 `;
 
-export const Landing = ({
-  loggedIn,
-  setLoggedIn,
-}: {
-  loggedIn: boolean;
-  setLoggedIn: Dispatch<SetStateAction<boolean>>;
-}) => {
+export const Landing = ({ loggedIn }: { loggedIn: boolean }) => {
   const [modalState, setModalState] = React.useState<{
     open: boolean;
     type: "register" | "login";
@@ -61,6 +54,7 @@ export const Landing = ({
         )}
       </LoginDiv>
       <Dialog
+        canOutsideClickClose={false}
         onClose={() => setModalState((state) => ({ ...state, open: false }))}
         title={modalState.type}
         isOpen={modalState.open}

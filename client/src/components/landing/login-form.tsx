@@ -25,7 +25,7 @@ const LockButton = ({
 const submitDetails = (
   sendDetails: MutateFunction<
     void,
-    unknown,
+    RequestError,
     {
       username: string;
       password: string;
@@ -39,8 +39,14 @@ const submitDetails = (
 export const LoginForm = () => {
   const { register, handleSubmit, errors } = useForm();
   const [showPassword, setShowPassword] = useState(false);
-  const [sendDetails, { isLoading, isError, error }] = useMutation(login);
-  const message = (error as RequestError)?.message || "";
+  const [sendDetails, { isLoading, isError, error }] = useMutation<
+    void,
+    RequestError,
+    {
+      username: string;
+      password: string;
+    }
+  >(login);
 
   return (
     <form onSubmit={handleSubmit(submitDetails(sendDetails))}>
@@ -86,7 +92,9 @@ export const LoginForm = () => {
             type={showPassword ? "text" : "password"}
           />
         </div>
-        <p style={{ color: "red", height: 18 }}>{isError ? message : ""}</p>
+        <p style={{ color: "red", height: 18 }}>
+          {isError ? error?.message : ""}
+        </p>
         <Button loading={isLoading} disabled={isLoading} type="submit">
           Submit
         </Button>
