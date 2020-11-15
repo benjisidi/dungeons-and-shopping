@@ -1,11 +1,15 @@
-import { Stock } from "../../../types";
+import type { Stock } from "../../../types";
 import { processRequest } from "./api-helpers/process-request";
 
-export const register = async (
-  username: string,
-  password: string,
-  email: string
-) => {
+export const register = async ({
+  username,
+  password,
+  email,
+}: {
+  username: string;
+  password: string;
+  email: string;
+}) => {
   // get a token
   // put it in local storage
   const { token } = await processRequest({
@@ -20,7 +24,13 @@ export const register = async (
   localStorage.setItem("token", token);
 };
 
-export const login = async (username: string, password: string) => {
+export const login = async ({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}) => {
   // get a token
   // put it in local storage
   const { token } = await processRequest({
@@ -81,12 +91,12 @@ export const deleteShop = async (id: string) => {
   });
   return message;
 };
-export const getStock = async (shopId: string, elapsedTime?: number) => {
+export const getStock = async (shopId: string, elapsedTime = 0) => {
   // returns all stock for the shop
   const { stock } = await processRequest({
     path: "/api/stock",
-    queryParams: elapsedTime && { time: elapsedTime },
     id: shopId,
+    queryParams: { time: elapsedTime },
   });
   return stock;
 };

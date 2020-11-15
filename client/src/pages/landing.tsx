@@ -1,23 +1,66 @@
+import { Button, Dialog } from "@blueprintjs/core";
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@blueprintjs/core";
+import styled from "styled-components";
 
-export const Landing = ({
-  loggedIn,
-  setLoggedIn,
-}: {
-  loggedIn: boolean;
-  setLoggedIn: (val: boolean) => void;
-}) => (
-  <>
-    <h1>
-      {`Welcome Traveller - Can I interest you in one of our many `}
-      <Link to="/shops">shops</Link>?
-    </h1>
-    {!loggedIn ? (
-      <Button onClick={() => setLoggedIn(true)}>Login?</Button>
-    ) : (
-      <Button onClick={() => setLoggedIn(false)}>Logout?</Button>
-    )}
-  </>
-);
+import { LoginForm, RegisterForm } from "../components/landing";
+
+const LoginDiv = styled.div`
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+`;
+const LoginButton = styled(Button)`
+  margin-top: 5px;
+`;
+
+export const Landing = ({ loggedIn }: { loggedIn: boolean }) => {
+  const [modalState, setModalState] = React.useState<{
+    open: boolean;
+    type: "register" | "login";
+  }>({
+    open: false,
+    type: "login",
+  });
+  return (
+    <>
+      <h1>
+        {`Welcome Traveller - Can I interest you in one of our many `}
+        <Link to="/shops">shops</Link>?
+      </h1>
+      <LoginDiv>
+        <LoginButton
+          onClick={() =>
+            setModalState((state) => ({ ...state, type: "login", open: true }))
+          }
+        >
+          {!loggedIn ? "Hey you should probably login" : "Logout?"}
+        </LoginButton>
+        {loggedIn || (
+          <LoginButton
+            onClick={() =>
+              setModalState((state) => ({
+                ...state,
+                type: "register",
+                open: true,
+              }))
+            }
+          >
+            Or maybe, register?
+          </LoginButton>
+        )}
+      </LoginDiv>
+      <Dialog
+        canOutsideClickClose={false}
+        onClose={() => setModalState((state) => ({ ...state, open: false }))}
+        title={modalState.type}
+        isOpen={modalState.open}
+      >
+        {modalState.type === "login" ? <LoginForm /> : <RegisterForm />}
+      </Dialog>
+    </>
+  );
+};

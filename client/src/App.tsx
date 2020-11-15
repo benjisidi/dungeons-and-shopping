@@ -1,12 +1,16 @@
+import "normalize.css";
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+
 import React, { useState } from "react";
 import {
   BrowserRouter as Router,
-  Switch,
   Route,
   RouteProps,
+  Switch,
 } from "react-router-dom";
 
-import { Forbidden, NotFound, Shops, Landing } from "./pages";
+import { Forbidden, Landing, NotFound, Shops } from "./pages";
 
 interface GuardedRouteProps extends RouteProps {
   loggedIn: boolean;
@@ -16,16 +20,14 @@ const GuardedRoute = ({ loggedIn, component, ...props }: GuardedRouteProps) => (
 );
 
 export const App = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn] = useState(false);
   return (
     <Router>
       <Switch>
         <Route
           exact
           path="/"
-          component={() => (
-            <Landing loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
-          )}
+          component={() => <Landing loggedIn={loggedIn} />}
         />
         <GuardedRoute
           loggedIn={loggedIn}

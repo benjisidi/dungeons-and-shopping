@@ -1,4 +1,10 @@
-import { ShopModel, ItemModel, UserModel, Shop, Stock } from "../../../types";
+import type {
+  ItemModel,
+  Shop,
+  ShopModel,
+  Stock,
+  UserModel,
+} from "../../../types";
 
 interface DetailedStock extends ItemModel, Stock {}
 
@@ -77,7 +83,7 @@ export interface ProcessRequest {
   }: {
     path: "/api/stock";
     id: string;
-    queryParams?: { time: number };
+    queryParams: { time: number };
   }): Promise<{
     stock: DetailedStock;
   }>;

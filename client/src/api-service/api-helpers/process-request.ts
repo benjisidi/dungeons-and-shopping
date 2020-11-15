@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { ProcessRequest } from "../types";
+import type { ProcessRequest } from "../../types";
 import { RequestError } from "./request-error";
 
 export const processRequest: ProcessRequest = async ({
@@ -11,7 +11,7 @@ export const processRequest: ProcessRequest = async ({
   queryParams = {},
 }: {
   path: string;
-  payload?;
+  payload?: Record<string, unknown>;
   method?: "GET" | "PUT" | "POST" | "DELETE";
   id?: string;
   queryParams?: Record<string, string | number>;
@@ -23,13 +23,17 @@ export const processRequest: ProcessRequest = async ({
   try {
     const token = localStorage.getItem("token");
     const response = await fetch(
-      `${process.env.baseUrl}${path}/${id}${queryStrings}`,
+      `${import.meta.env.SNOWPACK_PUBLIC_BASE_URL}${path}/${id}${queryStrings}`,
       {
         body: payload && JSON.stringify(payload),
         method,
-        headers: { "x-auth-token": token },
+        headers: {
+          "x-auth-token": token || "",
+          "Content-Type": "application/json",
+        },
       }
     );
+
     if (!response.ok) {
       const { message, ...details } = await response.json();
       throw new RequestError(message, response.status, details);
