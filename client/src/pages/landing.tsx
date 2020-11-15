@@ -1,8 +1,9 @@
-import { Button, Dialog } from "@blueprintjs/core";
+import { Alert, Button, Dialog, Intent } from "@blueprintjs/core";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+import { logout } from "../api-service";
 import { LoginForm, RegisterForm } from "../components/landing";
 
 const LoginDiv = styled.div`
@@ -18,6 +19,7 @@ const LoginButton = styled(Button)`
 `;
 
 export const Landing = ({ loggedIn }: { loggedIn: boolean }) => {
+  const [showLogoutWarning, setLogoutWarning] = React.useState(false);
   const [modalState, setModalState] = React.useState<{
     open: boolean;
     type: "register" | "login";
@@ -32,25 +34,33 @@ export const Landing = ({ loggedIn }: { loggedIn: boolean }) => {
         <Link to="/shops">shops</Link>?
       </h1>
       <LoginDiv>
-        <LoginButton
-          onClick={() =>
-            setModalState((state) => ({ ...state, type: "login", open: true }))
-          }
-        >
-          {!loggedIn ? "Hey you should probably login" : "Logout?"}
-        </LoginButton>
-        {loggedIn || (
-          <LoginButton
-            onClick={() =>
-              setModalState((state) => ({
-                ...state,
-                type: "register",
-                open: true,
-              }))
-            }
-          >
-            Or maybe, register?
-          </LoginButton>
+        {!loggedIn ? (
+          <>
+            <LoginButton
+              onClick={() =>
+                setModalState((state) => ({
+                  ...state,
+                  type: "login",
+                  open: true,
+                }))
+              }
+            >
+              Hey you should probably login
+            </LoginButton>
+            <LoginButton
+              onClick={() =>
+                setModalState((state) => ({
+                  ...state,
+                  type: "register",
+                  open: true,
+                }))
+              }
+            >
+              Or maybe, register?
+            </LoginButton>
+          </>
+        ) : (
+          <Button onClick={() => setLogoutWarning(true)}>Logout</Button>
         )}
       </LoginDiv>
       <Dialog
@@ -61,6 +71,17 @@ export const Landing = ({ loggedIn }: { loggedIn: boolean }) => {
       >
         {modalState.type === "login" ? <LoginForm /> : <RegisterForm />}
       </Dialog>
+      <Alert
+        isOpen={showLogoutWarning}
+        onConfirm={() => logout()}
+        onClose={() => setLogoutWarning(false)}
+        confirmButtonText="Logout"
+        cancelButtonText="Cancel"
+        intent={Intent.DANGER}
+        icon="log-out"
+      >
+        <p>Are you sure you want log out?</p>
+      </Alert>
     </>
   );
 };

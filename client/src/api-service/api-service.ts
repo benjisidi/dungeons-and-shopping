@@ -1,4 +1,5 @@
 import type { Stock } from "../../../types";
+import { setGlobal } from "../common";
 import { processRequest } from "./api-helpers/process-request";
 
 export const register = async ({
@@ -12,7 +13,7 @@ export const register = async ({
 }) => {
   // get a token
   // put it in local storage
-  const { token } = await processRequest({
+  const { token, user } = await processRequest({
     path: "/api/users",
     method: "PUT",
     payload: {
@@ -21,7 +22,9 @@ export const register = async ({
       email,
     },
   });
+  localStorage.setItem("savedUser", user.username);
   localStorage.setItem("token", token);
+  setGlobal({ loggedIn: true, user });
 };
 
 export const login = async ({
@@ -33,7 +36,7 @@ export const login = async ({
 }) => {
   // get a token
   // put it in local storage
-  const { token } = await processRequest({
+  const { token, user } = await processRequest({
     path: "/api/auth/login",
     method: "POST",
     payload: {
@@ -41,20 +44,24 @@ export const login = async ({
       password,
     },
   });
+  localStorage.setItem("savedUser", user.username);
   localStorage.setItem("token", token);
+  setGlobal({ loggedIn: true, user });
 };
 export const logout = () => {
   localStorage.removeItem("token");
-  // clear local storage
+  setGlobal({ loggedIn: false });
 };
 export const reauth = async () => {
   // get new jwt using the existing one
-  // clear local storage
   // put new token in local storage
-  const { token } = await processRequest({
-    path: "/api/users",
-  });
-  localStorage.setItem("token", token);
+  if (localStorage.getItem("token")) {
+    const { token, user } = await processRequest({
+      path: "/api/users",
+    });
+    localStorage.setItem("token", token);
+    setGlobal({ loggedIn: true, user });
+  }
 };
 
 export const createShop = async (name: string) => {

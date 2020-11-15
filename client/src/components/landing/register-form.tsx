@@ -1,27 +1,12 @@
-import { Button, InputGroup, Intent, Tooltip } from "@blueprintjs/core";
-import React, { Dispatch, useState } from "react";
+import { Button, InputGroup, Intent } from "@blueprintjs/core";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MutateFunction, useMutation } from "react-query";
 
 import { register as registerUser } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
+import { LockButton } from "./form-elements";
 
-const LockButton = ({
-  showPassword,
-  setShowPassword,
-}: {
-  showPassword: boolean;
-  setShowPassword: Dispatch<React.SetStateAction<boolean>>;
-}) => (
-  <Tooltip content={`${showPassword ? "Hide" : "Show"} Password`}>
-    <Button
-      icon={showPassword ? "unlock" : "lock"}
-      intent={Intent.WARNING}
-      minimal={true}
-      onClick={() => setShowPassword((val) => !val)}
-    />
-  </Tooltip>
-);
 const submitDetails = (
   sendDetails: MutateFunction<
     void,

@@ -1,27 +1,12 @@
-import { Button, InputGroup, Intent, Tooltip } from "@blueprintjs/core";
-import React, { Dispatch, useState } from "react";
+import { Button, InputGroup, Intent } from "@blueprintjs/core";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MutateFunction, useMutation } from "react-query";
 
 import { login } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
+import { ClearButton, LockButton } from "./form-elements";
 
-const LockButton = ({
-  showPassword,
-  setShowPassword,
-}: {
-  showPassword: boolean;
-  setShowPassword: Dispatch<React.SetStateAction<boolean>>;
-}) => (
-  <Tooltip content={`${showPassword ? "Hide" : "Show"} Password`}>
-    <Button
-      icon={showPassword ? "unlock" : "lock"}
-      intent={Intent.WARNING}
-      minimal={true}
-      onClick={() => setShowPassword((val) => !val)}
-    />
-  </Tooltip>
-);
 const submitDetails = (
   sendDetails: MutateFunction<
     void,
@@ -37,7 +22,12 @@ const submitDetails = (
 };
 
 export const LoginForm = () => {
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors, setValue } = useForm({
+    defaultValues: {
+      username: localStorage.getItem("savedUser"),
+      password: null,
+    },
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [sendDetails, { isLoading, isError, error }] = useMutation<
     void,
@@ -69,6 +59,9 @@ export const LoginForm = () => {
             inputRef={register({ required: true })}
             name="username"
             placeholder="Enter your username..."
+            rightElement={
+              <ClearButton clearValue={() => setValue("username", null)} />
+            }
             type={"text"}
           />
         </div>
