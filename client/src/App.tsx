@@ -20,16 +20,14 @@ const GuardedRoute = ({ loggedIn, component, ...props }: GuardedRouteProps) => (
 );
 
 export const App = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn] = useState(false);
   return (
     <Router>
       <Switch>
         <Route
           exact
           path="/"
-          component={() => (
-            <Landing loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
-          )}
+          component={() => <Landing loggedIn={loggedIn} />}
         />
         <GuardedRoute
           loggedIn={loggedIn}
