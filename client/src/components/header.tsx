@@ -18,8 +18,7 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { logout } from "../api-service";
-import { useGlobal } from "../common";
-import { AppToaster } from "../common/toaster";
+import { AppToaster, useGlobal } from "../common";
 import { LoginForm, RegisterForm } from "./auth";
 
 const LoginButton = styled(Button)`

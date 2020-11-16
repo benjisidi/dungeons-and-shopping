@@ -5,7 +5,7 @@ import { MutateFunction, useMutation } from "react-query";
 
 import { register as registerUser } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
-import { AppToaster } from "../../common/toaster";
+import { AppToaster } from "../../common";
 import { LockButton } from "./form-elements";
 
 const submitDetails = (
