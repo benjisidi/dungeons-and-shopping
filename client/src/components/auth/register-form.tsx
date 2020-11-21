@@ -3,31 +3,49 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MutateFunction, useMutation } from "react-query";
 
-import { login } from "../../api-service";
+import { register as registerUser } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
-import { ClearButton, LockButton } from "./form-elements";
+import { AppToaster } from "../../common";
+import { LockButton } from "./form-elements";
 
 const submitDetails = (
   sendDetails: MutateFunction<
     void,
-    RequestError,
+    unknown,
     {
       username: string;
       password: string;
+      email: string;
     },
     unknown
-  >
-) => async ({ password, username }: { password: string; username: string }) => {
-  await sendDetails({ password, username });
+  >,
+  onSubmit: () => void
+) => async ({
+  password,
+  username,
+  email,
+}: {
+  password: string;
+  username: string;
+  email: string;
+}) => {
+  await sendDetails(
+    { password, username, email },
+    {
+      onSuccess: () => {
+        onSubmit();
+        AppToaster.show({
+          message: `Successfully created ${username} account!`,
+          intent: Intent.SUCCESS,
+          icon: "tick-circle",
+        });
+      },
+    }
+  );
 };
 
-export const LoginForm = () => {
-  const { register, handleSubmit, errors, setValue } = useForm({
-    defaultValues: {
-      username: localStorage.getItem("savedUser"),
-      password: null,
-    },
-  });
+export const RegisterForm = ({ onSubmit }: { onSubmit: () => void }) => {
+  const { register, handleSubmit, errors } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const [sendDetails, { isLoading, isError, error }] = useMutation<
     void,
@@ -35,11 +53,12 @@ export const LoginForm = () => {
     {
       username: string;
       password: string;
+      email: string;
     }
-  >(login);
+  >(registerUser);
 
   return (
-    <form onSubmit={handleSubmit(submitDetails(sendDetails))}>
+    <form onSubmit={handleSubmit(submitDetails(sendDetails, onSubmit))}>
       <div
         style={{
           marginRight: "auto",
@@ -57,11 +76,22 @@ export const LoginForm = () => {
             disabled={isLoading}
             intent={isError || errors.username ? Intent.DANGER : "none"}
             inputRef={register({ required: true })}
+            name="email"
+            placeholder="Enter your email..."
+            type={"text"}
+          />
+        </div>
+        <div
+          style={{
+            marginTop: 5,
+          }}
+        >
+          <InputGroup
+            disabled={isLoading}
+            intent={isError || errors.username ? Intent.DANGER : "none"}
+            inputRef={register({ required: true })}
             name="username"
             placeholder="Enter your username..."
-            rightElement={
-              <ClearButton clearValue={() => setValue("username", null)} />
-            }
             type={"text"}
           />
         </div>

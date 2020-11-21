@@ -50,7 +50,7 @@ export const login = async ({
 };
 export const logout = () => {
   localStorage.removeItem("token");
-  setGlobal({ loggedIn: false });
+  setGlobal({ loggedIn: false, user: null });
 };
 export const reauth = async () => {
   // get new jwt using the existing one

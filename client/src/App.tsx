@@ -15,6 +15,7 @@ import styled from "styled-components";
 
 import { reauth } from "./api-service";
 import { useGlobal } from "./common";
+import { PageHeader } from "./components";
 import { Forbidden, Landing, NotFound, Shops } from "./pages";
 
 interface GuardedRouteProps extends RouteProps {
@@ -46,12 +47,9 @@ export const App = () => {
   }
   return (
     <Router>
+      <PageHeader />
       <Switch>
-        <Route
-          exact
-          path="/"
-          component={() => <Landing loggedIn={loggedIn} />}
-        />
+        <Route exact path="/" component={() => <Landing />} />
         <GuardedRoute
           loggedIn={loggedIn}
           path="/shops"
