@@ -1,14 +1,14 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 const fadeInText = keyframes`
-to{
-  stroke-dashoffset: 0
-}
+  to {
+    stroke-dashoffset: 0
+  }
 `;
 const fill = keyframes`
-to{
-  fill: black;
-}
+  to {
+    fill: black;
+  }
 `;
 
 const elementLengths = [
@@ -26,6 +26,7 @@ const elementLengths = [
   327.2906799316406,
   300,
 ];
+
 const TitlePath = styled.path<{ index: number; length: number }>`
   stroke-dasharray: ${({ length }) => length}px;
   stroke-dashoffset: ${({ length }) => length}px;
@@ -34,10 +35,6 @@ const TitlePath = styled.path<{ index: number; length: number }>`
 
 const TitleWrapper = styled.svg`
   fill: transparent;
-  position: absolute;
-  top: 25%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   animation: ${fill} 2s ease forwards ${elementLengths.length * 0.15}s;
 `;
 export const OpeningTitle = () => {

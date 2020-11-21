@@ -5,26 +5,33 @@ import styled from "styled-components";
 import { useGlobal } from "../common";
 import { OpeningTitle } from "../components/landing/opening-title";
 
-const OpeningText = styled.h1`
+const OpeningBanner = styled.div`
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+`;
+const OpeningText = styled.h1`
+  text-align: center;
 `;
 
 export const Landing = () => {
   const [loggedIn] = useGlobal("loggedIn");
   const [user] = useGlobal("user");
   if (!loggedIn) {
-    return <OpeningText>Halt! Who goes there?</OpeningText>;
+    return (
+      <OpeningBanner>
+        <OpeningText>Halt! Who goes there?</OpeningText>
+      </OpeningBanner>
+    );
   }
   return (
-    <>
+    <OpeningBanner>
       <OpeningTitle />
       <OpeningText>
         {`Hullo there ${user.username}! Fancy having a look at these here `}
         <Link to="/shops">shops</Link>?
       </OpeningText>
-    </>
+    </OpeningBanner>
   );
 };
