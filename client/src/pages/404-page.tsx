@@ -1,8 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+
+import { ErrorBanner } from "../components";
 
 export const NotFound = () => (
-  <h1>
-    Where you tryna get to buddy? Wanna go <Link to="/">Home</Link>
-  </h1>
+  <ErrorBanner text="I think you might be lost, go " />
 );

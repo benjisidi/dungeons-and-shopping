@@ -1,8 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+
+import { ErrorBanner } from "../components";
 
 export const Forbidden = () => (
-  <h1>
-    Wait - who are you? Should you be here? Wanna go <Link to="/">Home</Link>?
-  </h1>
+  <ErrorBanner text="You must be signed in to view this page, go " />
 );
