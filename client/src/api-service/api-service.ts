@@ -64,7 +64,7 @@ export const reauth = async () => {
   }
 };
 
-export const createShop = async (name: string) => {
+export const createShop = async ({ name }: { name: string }) => {
   // returns all user shops
   const { shops } = await processRequest({
     path: "/api/shops",
@@ -80,7 +80,13 @@ export const getShops = async () => {
   });
   return shops;
 };
-export const updateShop = async (id: string, name: string) => {
+export const updateShop = async ({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) => {
   // returns all user shops
   const { shops } = await processRequest({
     path: "/api/shops",
@@ -90,7 +96,7 @@ export const updateShop = async (id: string, name: string) => {
   });
   return shops;
 };
-export const deleteShop = async (id: string) => {
+export const deleteShop = async ({ id }: { id: string }) => {
   const { message } = await processRequest({
     path: "/api/shops",
     method: "DELETE",
