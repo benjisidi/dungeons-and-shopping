@@ -6,11 +6,16 @@ declare interface GlobalState {
   loaded: boolean;
   loggedIn: boolean;
   user: Omit<User, "password"> | null;
+  shopLookup: { [id: string]: string };
 }
 declare interface UseGlobal {
   (key: "loggedIn"): [boolean, (newVal: boolean) => void];
   (key: "loaded"): [boolean, (newVal: boolean) => void];
   (key: "user"): [User, (newVal: User) => void];
+  (key: "shopLookup"): [
+    { [id: string]: string },
+    (newVal: { [id: string]: string }) => void
+  ];
 }
 export const getGlobal = (): GlobalState => reactn.getGlobal<GlobalState>();
 export const setGlobal = (state: Partial<GlobalState>) =>
