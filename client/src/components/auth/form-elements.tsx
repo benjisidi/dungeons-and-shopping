@@ -1,5 +1,6 @@
-import { Button, Intent, Tooltip } from "@blueprintjs/core";
+import { Button, Colors, InputGroup, Intent, Tooltip } from "@blueprintjs/core";
 import React, { Dispatch } from "react";
+import styled from "styled-components";
 
 export const LockButton = ({
   showPassword,
@@ -27,3 +28,16 @@ export const ClearButton = ({ clearValue }: { clearValue: () => void }) => (
     />
   </Tooltip>
 );
+
+export const FormWrapper = styled.div`
+  margin: 30px auto 0;
+  width: 300px;
+`;
+
+export const Input = styled(InputGroup)`
+  margin-top: 5px;
+`;
+export const ErrorText = styled.p`
+  color: ${Colors.RED1};
+  height: 18px;
+`;
