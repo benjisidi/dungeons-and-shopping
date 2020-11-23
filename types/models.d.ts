@@ -1,5 +1,6 @@
-import { Armour, EquipmentPack, Gear, Item, Tool, Vehicle, Weapon } from ".";
 import { Document } from "mongoose";
+
+import { Armour, EquipmentPack, Gear, Item, Tool, Vehicle, Weapon } from ".";
 
 export interface Stock {
   number: number;

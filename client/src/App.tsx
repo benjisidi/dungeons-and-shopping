@@ -4,7 +4,7 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 import { Spinner } from "@blueprintjs/core";
 import React from "react";
-import { useMutation } from "react-query";
+import { QueryCache, ReactQueryCacheProvider, useMutation } from "react-query";
 import {
   BrowserRouter as Router,
   Route,
@@ -16,7 +16,7 @@ import styled from "styled-components";
 import { reauth } from "./api-service";
 import { useGlobal } from "./common";
 import { PageHeader } from "./components";
-import { Forbidden, Landing, NotFound, Shops } from "./pages";
+import { Forbidden, Landing, NotFound, Shops, Stock } from "./pages";
 
 interface GuardedRouteProps extends RouteProps {
   loggedIn: boolean;
@@ -35,6 +35,15 @@ export const App = () => {
   const [loggedIn] = useGlobal("loggedIn");
   const [loaded, setLoaded] = useGlobal("loaded");
   const [refreahToken] = useMutation(reauth);
+  const queryCache = new QueryCache({
+    defaultConfig: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: 2,
+        staleTime: Infinity,
+      },
+    },
+  });
   // on app boot try and reauth with any token left in local
   React.useEffect(() => {
     if (!loaded && !loggedIn) {
@@ -46,17 +55,25 @@ export const App = () => {
     return <CentredSpinner />;
   }
   return (
-    <Router>
-      <PageHeader />
-      <Switch>
-        <Route exact path="/" component={() => <Landing />} />
-        <GuardedRoute
-          loggedIn={loggedIn}
-          path="/shops"
-          component={() => <Shops />}
-        />
-        <Route path="*" component={() => <NotFound />} />
-      </Switch>
-    </Router>
+    <ReactQueryCacheProvider queryCache={queryCache}>
+      <Router>
+        <PageHeader />
+        <Switch>
+          <Route exact path="/" component={() => <Landing />} />
+          <GuardedRoute
+            exact
+            loggedIn={loggedIn}
+            path="/shops"
+            component={() => <Shops />}
+          />
+          <GuardedRoute
+            loggedIn={loggedIn}
+            path="/shops/:shopId"
+            component={() => <Stock />}
+          />
+          <Route path="*" component={() => <NotFound />} />
+        </Switch>
+      </Router>
+    </ReactQueryCacheProvider>
   );
 };
