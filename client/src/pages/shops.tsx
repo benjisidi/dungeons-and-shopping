@@ -4,32 +4,10 @@ import { useQuery } from "react-query";
 import styled from "styled-components";
 
 import { getShops } from "../api-service";
-import { getShopLookup, setGlobal } from "../common";
-import { ErrorBanner } from "../components";
+import { ErrorBanner } from "../components/shared";
+import { Grid, Page, PageText, PageTitle } from "../components/shared";
 import { CreateShop, Shop } from "../components/shops";
 
-const Page = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-const PageTitle = styled.h1`
-  margin: 30px auto 0;
-  width: 500px;
-  font-size: 52px;
-  text-align: center;
-`;
-const PageText = styled.p`
-  margin: 30px auto 0;
-  width: 500px;
-  text-align: center;
-`;
-const ShopGrid = styled.div`
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 30px;
-  justify-content: center;
-`;
 const ShopSkeleton = styled.div`
   height: 150px;
   width: 300px;
@@ -45,9 +23,7 @@ const ShopSkeleton = styled.div`
 `;
 
 export const Shops = () => {
-  const { data, isLoading, isError, refetch } = useQuery("shops", getShops, {
-    onSuccess: (data) => setGlobal({ shopLookup: getShopLookup(data) }),
-  });
+  const { data, isLoading, isError, refetch } = useQuery("shops", getShops);
   if (isLoading) {
     return (
       <Page>
@@ -55,11 +31,11 @@ export const Shops = () => {
         <PageText>
           Create and update shops! Select a shop to see what it stocks
         </PageText>
-        <ShopGrid>
+        <Grid>
           <ShopSkeleton>
             <Spinner />
           </ShopSkeleton>
-        </ShopGrid>
+        </Grid>
       </Page>
     );
   }
@@ -73,7 +49,7 @@ export const Shops = () => {
       <PageText>
         Create and update shops! Select a shop to see what it stocks
       </PageText>
-      <ShopGrid>
+      <Grid>
         <CreateShop refetch={refetch} />
         {(data || []).map(({ name, _id }, i) => (
           <Shop
@@ -83,7 +59,7 @@ export const Shops = () => {
             shopId={_id}
           />
         ))}
-      </ShopGrid>
+      </Grid>
     </Page>
   );
 };
