@@ -1,17 +1,18 @@
 // routes for controlling global items (and maybe shop templates)
 import express from "express";
-import { items as rawItems, generateItems } from "../../items";
-import { Item } from "../../models";
+
 import {
-  getMissingKeys,
-  authMiddleware,
-  validateUser,
   adminOnly,
   asyncForEach,
+  authMiddleware,
   createItems,
-  updateItems,
   deleteItems,
+  getMissingKeys,
+  updateItems,
+  validateUser,
 } from "../../helpers";
+import { generateItems, items as rawItems } from "../../items";
+import { Item } from "../../models";
 
 export const global = express.Router();
 

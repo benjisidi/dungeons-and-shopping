@@ -1,9 +1,10 @@
-import jwt from "jsonwebtoken";
-import { keys } from "../config";
 import bcrypt from "bcryptjs";
 import express from "express";
-import { JWTinfo } from "../types";
+import jwt from "jsonwebtoken";
+
+import { keys } from "../config";
 import { User } from "../models";
+import { JWTinfo } from "../types";
 
 export const createToken = (id: string) => {
   const jwtDetails: JWTinfo = { id };
@@ -37,9 +38,9 @@ export const authMiddleware = (
     next();
   } catch (e) {
     if (e.expiredAt) {
-      return response.status(400).json({ message: "dis jwt too old" });
+      return response.status(401).json({ message: "dis jwt too old" });
     }
-    response.status(400).json({ message: "wtf dis jwt" });
+    response.status(401).json({ message: "wtf dis jwt" });
   }
 };
 
