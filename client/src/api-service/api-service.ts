@@ -104,14 +104,23 @@ export const deleteShop = async ({ id }: { id: string }) => {
   });
   return message;
 };
-export const getStock = async (shopId: string, elapsedTime = 0) => {
+export const getStock = async (
+  key: string,
+  {
+    shopId,
+    elapsedTime = 0,
+  }: {
+    shopId: string;
+    elapsedTime?: number;
+  }
+) => {
   // returns all stock for the shop
-  const { stock } = await processRequest({
+  const { stock, shop } = await processRequest({
     path: "/api/stock",
     id: shopId,
     queryParams: { time: elapsedTime },
   });
-  return stock;
+  return { stock, shop };
 };
 export const updateStock = async (shopId: string, stock: Stock[]) => {
   // returns all stock for the shop

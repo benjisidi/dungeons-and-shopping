@@ -1,4 +1,6 @@
 import dotenv from "dotenv";
+
+import { setGlobal } from "../../common";
 dotenv.config();
 import type { ProcessRequest } from "../../types";
 import { RequestError } from "./request-error";
@@ -35,6 +37,9 @@ export const processRequest: ProcessRequest = async ({
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        setGlobal({ loggedIn: false });
+      }
       const { message, ...details } = await response.json();
       throw new RequestError(message, response.status, details);
     }

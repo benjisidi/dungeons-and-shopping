@@ -6,7 +6,7 @@ import type {
   UserModel,
 } from "../../../types";
 
-interface DetailedStock extends ItemModel, Stock {}
+export interface DetailedStock extends ItemModel, Stock {}
 
 export interface ProcessRequest {
   // create user
@@ -85,7 +85,8 @@ export interface ProcessRequest {
     id: string;
     queryParams: { time: number };
   }): Promise<{
-    stock: DetailedStock;
+    shop: ShopModel;
+    stock: DetailedStock[];
   }>;
   // update stock
   ({
@@ -99,6 +100,6 @@ export interface ProcessRequest {
     payload: { stock: Omit<Stock, "userId" | "itemId" | "shopId">[] };
     method: "POST";
   }): Promise<{
-    stock: DetailedStock;
+    stock: DetailedStock[];
   }>;
 }
