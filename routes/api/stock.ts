@@ -1,16 +1,16 @@
 import express from "express";
-import { Item, Stock, Shop } from "../../models";
-import {
-  getMissingKeys,
-  authMiddleware,
-  validateUser,
-  asyncForEach,
-  validateStockArray,
-  validateIdArray,
-  repopulateShop,
-} from "../../helpers";
+import pick from "lodash/pick";
 
-import { pick } from "lodash";
+import {
+  asyncForEach,
+  authMiddleware,
+  getMissingKeys,
+  repopulateShop,
+  validateIdArray,
+  validateStockArray,
+  validateUser,
+} from "../../helpers";
+import { Item, Shop, Stock } from "../../models";
 
 export const stock = express.Router();
 
@@ -22,8 +22,8 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
     const userId = request.headers["user-id"] as string;
     const shopId = request.params.id;
     // validate the shop exists and belongs to the user
-    const shop = await Shop.find({ userId, _id: shopId });
-    if (!shop.length) {
+    const [shop] = await Shop.find({ userId, _id: shopId });
+    if (!shop) {
       return response.status(404).json({ message: "shop not found" });
     }
     // find all the stock for that shop
@@ -52,7 +52,7 @@ stock.get("/:id", authMiddleware, validateUser, async (request, response) => {
         ...stockDetails,
       };
     });
-    response.json({ stock: stockResponse });
+    response.json({ shop, stock: stockResponse });
   } catch (e) {
     response.status(400).json({ message: "something went wrong" });
   }
