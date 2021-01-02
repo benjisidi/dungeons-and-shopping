@@ -15,7 +15,7 @@ import styled from "styled-components";
 
 import { reauth } from "./api-service";
 import { useGlobal } from "./common";
-import { PageHeader } from "./components";
+import { PageHeader } from "./components/shared";
 import { Forbidden, Landing, NotFound, Shops, Stock } from "./pages";
 
 interface GuardedRouteProps extends RouteProps {

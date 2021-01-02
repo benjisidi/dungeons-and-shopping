@@ -17,9 +17,9 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { logout } from "../api-service";
-import { AppToaster, useGlobal } from "../common";
-import { LoginForm, RegisterForm } from "./auth";
+import { logout } from "../../api-service";
+import { AppToaster, useGlobal } from "../../common";
+import { LoginForm, RegisterForm } from "../auth";
 
 const LoginButton = styled(Button)`
   margin-top: 5px;
