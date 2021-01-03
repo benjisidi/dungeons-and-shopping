@@ -1,16 +1,29 @@
-import { Button, Card, Colors, InputGroup, Spinner } from "@blueprintjs/core";
+import {
+  Button,
+  Card,
+  Colors,
+  Dialog,
+  InputGroup,
+  Spinner,
+} from "@blueprintjs/core";
+import isEmpty from "lodash/isEmpty";
 import React, { Reducer } from "react";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { getStock } from "../api-service";
-import { ErrorBanner } from "../components/shared";
+import { ClearButton, ErrorBanner } from "../components/shared";
 import { Grid, Page, PageText, PageTitle } from "../components/shared";
-import { DetailsOverlay, StockCard, stockReducer } from "../components/stock";
+import {
+  DetailsOverlay,
+  PurchaseForm,
+  ShoppingCart,
+  StockCard,
+  stockReducer,
+} from "../components/stock";
 import type {
   DetailedStock,
-  Details,
   PageState,
   ShopModel,
   StockAction,
@@ -39,6 +52,12 @@ const CartButton = styled(Button)`
   width: 120px;
 `;
 
+const getStockObject = (stock: DetailedStock[]): PageState["stock"] =>
+  stock.reduce((acc: PageState["stock"], curr) => {
+    acc[curr.itemId] = curr;
+    return acc;
+  }, {});
+
 const StockPage = ({
   stock,
   shop,
@@ -54,11 +73,12 @@ const StockPage = ({
       isDetailsOpen: false,
       isCartOpen: false,
       purchaseItem: null,
-      detailsState: null,
-      cart: [],
-      stock,
+      detailsItem: null,
+      cart: {},
+      stock: getStockObject(stock),
     }
   );
+
   return (
     <Page>
       <PageTitle>{shop.name}</PageTitle>
@@ -67,16 +87,23 @@ const StockPage = ({
         <Link to="/shops">shops</Link> - we have everything you need
       </PageText>
       <SearchPanel>
-        <CartButton>Shopping Cart</CartButton>
+        <CartButton
+          disabled={isEmpty(state.cart)}
+          onClick={() => dispatch({ type: "OPEN_CART" })}
+        >
+          Shopping Cart
+        </CartButton>
         <InputGroup
           placeholder="Type Here to Search"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setFilter(e.target.value)
           }
+          value={filter}
+          rightElement={<ClearButton clearValue={() => setFilter("")} />}
         />
       </SearchPanel>
       <Grid>
-        {state.stock
+        {Object.values(state.stock)
           .filter((stockItem) => {
             if (!filter) {
               return true;
@@ -97,10 +124,19 @@ const StockPage = ({
       </Grid>
       <DetailsOverlay
         dispatch={dispatch}
-        itemName={state.detailsState?.name as string}
-        details={state.detailsState?.details as Details}
+        detailsItem={state.stock[state.detailsItem as string]}
         isOpen={state.isDetailsOpen}
       />
+      <Dialog
+        onClose={() => dispatch({ type: "CANCEL_PURCHASE" })}
+        title={state.stock[state.purchaseItem as string]?.name}
+        isOpen={state.isPurchaseFormOpen}
+      >
+        {state.isPurchaseFormOpen && (
+          <PurchaseForm state={state} dispatch={dispatch} />
+        )}
+      </Dialog>
+      <ShoppingCart state={state} dispatch={dispatch} />
     </Page>
   );
 };

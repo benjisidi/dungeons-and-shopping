@@ -4,7 +4,7 @@ import isArray from "lodash/isArray";
 import React from "react";
 import styled from "styled-components";
 
-import type { Details, StockAction } from "../../types";
+import type { Item, Stock, StockAction } from "../../types";
 
 const CardTitle = styled.h2`
   margin-top: 0;
@@ -93,13 +93,11 @@ const Detail = ({
 };
 
 export const DetailsOverlay = ({
-  itemName,
-  details,
   isOpen,
+  detailsItem,
   dispatch,
 }: {
-  itemName: string;
-  details: Details;
+  detailsItem: Item & Stock;
   isOpen: boolean;
   dispatch: React.Dispatch<StockAction>;
 }) => (
@@ -111,8 +109,8 @@ export const DetailsOverlay = ({
   >
     <CardHolder>
       <Card>
-        <CardTitle>{itemName}</CardTitle>
-        {Object.entries(details || {}).map(([name, detail]) => (
+        <CardTitle>{detailsItem?.name}</CardTitle>
+        {Object.entries(detailsItem?.details || {}).map(([name, detail]) => (
           <Detail key={name} name={name} detail={detail} />
         ))}
       </Card>

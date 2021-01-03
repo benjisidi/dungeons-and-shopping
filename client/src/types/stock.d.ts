@@ -10,7 +10,7 @@ import type {
 
 export interface ShoppingCartItem {
   itemId: string;
-  number: string;
+  number: number;
 }
 declare type Details =
   | ArmourDetails
@@ -24,10 +24,10 @@ export interface PageState {
   isPurchaseFormOpen: boolean;
   isDetailsOpen: boolean;
   isCartOpen: boolean;
-  purchaseItem: (Stock & Item) | null;
-  detailsState: { details: Details; name: string } | null;
-  cart: ShoppingCartItem[];
-  stock: Array<Stock & Item>;
+  purchaseItem: string | null;
+  detailsItem: string | null;
+  cart: { [itemId: string]: ShoppingCartItem };
+  stock: { [itemId: string]: Stock & Item };
 }
 
 interface FluxStandardAction {
@@ -38,12 +38,25 @@ interface FluxStandardAction {
 
 interface OpenDetails extends FluxStandardAction {
   type: "OPEN_DETAILS";
-  payload: Details;
-  meta: string;
+  payload: string;
 }
 
-interface CloseDetails extends FluxStandardAction {
-  type: "CLOSE_DETAILS";
+interface SimpleAction extends FluxStandardAction {
+  type: "CLOSE_DETAILS" | "CANCEL_PURCHASE" | "OPEN_CART" | "CLOSE_CART";
 }
 
-export type StockAction = OpenDetails | CloseDetails;
+interface OpenPurchaseForm extends FluxStandardAction {
+  type: "OPEN_PURCHASE";
+  payload: string;
+}
+
+interface AddToCart extends FluxStandardAction {
+  type: "ADD_TO_CART";
+  payload: number;
+}
+
+export type StockAction =
+  | OpenDetails
+  | SimpleAction
+  | OpenPurchaseForm
+  | AddToCart;

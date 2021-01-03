@@ -1,4 +1,4 @@
-import { Button } from "@blueprintjs/core";
+import { Button, Colors } from "@blueprintjs/core";
 import React from "react";
 
 import type { Item, Stock } from "../../../../types";
@@ -18,17 +18,24 @@ export const StockCard = ({
   stock: Stock & Item;
   dispatch: React.Dispatch<StockAction>;
 }) => {
-  const { name, number, cost, details } = stock;
+  const { name, number, cost, itemId } = stock;
+  const isDisabled = number === 0;
   return (
-    <StandardCard interactive={true}>
+    <StandardCard
+      style={{
+        backgroundColor: isDisabled ? Colors.LIGHT_GRAY5 : Colors.WHITE,
+      }}
+      onClick={() =>
+        !isDisabled && dispatch({ type: "OPEN_PURCHASE", payload: itemId })
+      }
+      interactive={!isDisabled}
+    >
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <ButtonHolder onClick={(e) => e.stopPropagation()}>
           <Button
             minimal={true}
-            onClick={() =>
-              dispatch({ type: "OPEN_DETAILS", payload: details, meta: name })
-            }
+            onClick={() => dispatch({ type: "OPEN_DETAILS", payload: itemId })}
           >
             Details
           </Button>
