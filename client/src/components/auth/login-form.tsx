@@ -12,7 +12,7 @@ import {
   FormWrapper,
   Input,
   LockButton,
-} from "./form-elements";
+} from "../shared";
 
 declare interface CurrentUser {
   password: string;

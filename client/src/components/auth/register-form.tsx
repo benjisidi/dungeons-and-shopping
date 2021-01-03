@@ -6,7 +6,7 @@ import { useMutation } from "react-query";
 import { register as registerUser } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
 import { AppToaster } from "../../common";
-import { ErrorText, FormWrapper, Input, LockButton } from "./form-elements";
+import { ErrorText, FormWrapper, Input, LockButton } from "../shared";
 
 declare interface NewUser {
   username: string;
@@ -39,7 +39,7 @@ export const RegisterForm = ({ onSubmit }: { onSubmit: () => void }) => {
       <FormWrapper>
         <Input
           disabled={isLoading}
-          intent={isError || errors.username ? Intent.DANGER : "none"}
+          intent={isError || errors.email ? Intent.DANGER : "none"}
           inputRef={register({ required: true })}
           name="email"
           placeholder="Enter your email..."
