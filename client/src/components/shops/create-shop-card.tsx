@@ -1,13 +1,13 @@
 import { Colors, Dialog, Icon, Intent, Tooltip } from "@blueprintjs/core";
 import React from "react";
 import { useMutation } from "react-query";
-import type { RequestError } from "src/api-service/api-helpers/request-error";
-import type { ShopValues } from "src/types";
 import styled from "styled-components";
 
 import type { ShopModel } from "../../../../types";
 import { createShop as createShopRequest } from "../../api-service";
-import { AppToaster, getShopLookup, setGlobal } from "../../common";
+import type { RequestError } from "../../api-service/api-helpers/request-error";
+import { AppToaster } from "../../common";
+import type { ShopValues } from "../../types";
 import { ShopForm } from "./sub-components/shop-form";
 
 const CreateShopCard = styled.div`
@@ -43,9 +43,8 @@ export const CreateShop = ({ refetch }: { refetch: () => void }) => {
 
   const submit = (values: ShopValues) =>
     saveShop(values, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         refetch();
-        setGlobal({ shopLookup: getShopLookup(data) });
         setCreateOpen(false);
         AppToaster.show({
           message: `Created ${values.name}!`,

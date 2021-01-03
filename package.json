@@ -6,7 +6,9 @@
   "author": "Benji Sidi <benji.sidi@gmail.com> | Truman Wright <trumanwright13@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon -e ts --ignore client/"
+    "server": "nodemon -e ts --ignore client/",
+    "client": "yarn --cwd client dev",
+    "dev": "concurrently \"yarn run server\" \"yarn run client\""
   },
   "husky": {
     "hooks": {
@@ -30,6 +32,7 @@
     "@types/node": "^14.6.4",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
+    "concurrently": "^5.3.0",
     "eslint": "^7.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",

@@ -1,35 +1,13 @@
-import { Card, Intent, Tooltip } from "@blueprintjs/core";
+import { Intent, Tooltip } from "@blueprintjs/core";
 import React from "react";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-import type { RequestError } from "src/api-service/api-helpers/request-error";
-import styled from "styled-components";
 
 import { deleteShop as deleteShopRequest } from "../../api-service";
+import type { RequestError } from "../../api-service/api-helpers/request-error";
 import { AppToaster, useGlobal } from "../../common";
+import { ButtonHolder, CardHeader, CardTitle, StandardCard } from "../shared";
 import { DeleteButton, EditButton } from "./sub-components";
-
-const CardHeader = styled.div`
-  width: 100%;
-  display: flex;
-`;
-const CardTitle = styled.h2`
-  max-width: 200px;
-  margin: 8px 0 0;
-  overflow-wrap: break-word;
-`;
-const ShopCard = styled(Card)`
-  padding-top: 2px;
-  height: 150px;
-  width: 300px;
-  margin: 10px;
-`;
-const ButtonHolder = styled.div`
-  height: 30px;
-  display: flex;
-  margin-left: auto;
-  transform: translate(18px);
-`;
 
 export const Shop = ({
   name,
@@ -66,7 +44,7 @@ export const Shop = ({
 
   return (
     <Tooltip disabled={isTooltipDisabled} content="Click to view stock">
-      <ShopCard
+      <StandardCard
         elevation={2}
         interactive={true}
         onClick={() => history.push(`/shops/${shopId}`)}
@@ -81,7 +59,7 @@ export const Shop = ({
             <DeleteButton handleDelete={handleDelete} name={name} />
           </ButtonHolder>
         </CardHeader>
-      </ShopCard>
+      </StandardCard>
     </Tooltip>
   );
 };

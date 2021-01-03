@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { Schema, model } from "mongoose";
+import { model, Schema } from "mongoose";
+
 import {
+  ArmourModel,
   GearModel,
+  ItemModel,
   itemType,
+  PackModel,
   ToolModel,
   VehicleModel,
   WeaponModel,
-  ArmourModel,
-  ItemModel,
-  PackModel,
 } from "../types";
 
 const itemTypes: itemType[] = [
@@ -21,6 +22,10 @@ const itemTypes: itemType[] = [
 ];
 export const ItemSchema = new Schema(
   {
+    cost: {
+      quantity: { type: Number, required: true },
+      unit: { type: String, required: true, enum: ["cp", "sp", "gp"] },
+    },
     name: {
       type: String,
       required: true,

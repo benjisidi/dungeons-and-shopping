@@ -4,7 +4,7 @@ import { useMutation } from "react-query";
 
 import { updateShop as updateShopRequest } from "../../../api-service";
 import type { RequestError } from "../../../api-service/api-helpers/request-error";
-import { AppToaster, getShopLookup, setGlobal } from "../../../common";
+import { AppToaster } from "../../../common";
 import type { ShopModel, ShopValues } from "../../../types";
 import { ShopForm } from "./shop-form";
 
@@ -28,9 +28,8 @@ export const EditButton = ({
     await updateShop(
       { ...values, id: shopId },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           refetch();
-          setGlobal({ shopLookup: getShopLookup(data) });
           setEditOpen(false);
           AppToaster.show({
             message: `Updated ${values.name}!`,

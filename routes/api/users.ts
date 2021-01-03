@@ -114,7 +114,7 @@ users.delete("/", authMiddleware, validateUser, async (request, response) => {
   // you cannot delete the original admin user (so someone can always do admin things)
   if (id === "5f47e9524f9cf34360540fc5") {
     return response
-      .status(401)
+      .status(400)
       .json({ message: "this user cannot be deleted" });
   }
   try {
