@@ -50,6 +50,7 @@ const StockSkeleton = styled(Card)`
 const CartButton = styled(Button)`
   margin-right: 10px;
   width: 120px;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 `;
 
 const getStockObject = (stock: DetailedStock[]): PageState["stock"] =>
@@ -57,6 +58,28 @@ const getStockObject = (stock: DetailedStock[]): PageState["stock"] =>
     acc[curr.itemId] = curr;
     return acc;
   }, {});
+
+const isCardShown = (stockItem: DetailedStock, filter: string) =>
+  !filter ||
+  stockItem.name.includes(filter) ||
+  stockItem.index.includes(filter);
+
+const sortStock = (filter: string) => (
+  a: DetailedStock,
+  b: DetailedStock
+): number => {
+  const showA = isCardShown(a, filter);
+  const showB = isCardShown(b, filter);
+  if (showA === showB) {
+    return 0;
+  }
+  if (showA && !showB) {
+    return -1;
+  }
+  if (!showA && showB) {
+    return 1;
+  }
+};
 
 const StockPage = ({
   stock,
@@ -80,19 +103,15 @@ const StockPage = ({
   );
 
   return (
-    <Page>
-      <PageTitle>{shop.name}</PageTitle>
-      <PageText>
-        {`Welcome to ${shop.name}! Have a look around - buy something if it catches your eye. Don't worry about those other `}
-        <Link to="/shops">shops</Link> - we have everything you need
-      </PageText>
+    <>
       <SearchPanel>
         <CartButton
           disabled={isEmpty(state.cart)}
           onClick={() => dispatch({ type: "OPEN_CART" })}
         >
-          Shopping Cart
+          {isEmpty(state.cart) ? "Cart Empty!" : "Shopping Cart"}
         </CartButton>
+
         <InputGroup
           placeholder="Type Here to Search"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -104,23 +123,19 @@ const StockPage = ({
       </SearchPanel>
       <Grid>
         {Object.values(state.stock)
-          .filter((stockItem) => {
-            if (!filter) {
-              return true;
-            } else {
-              return (
-                stockItem.name.includes(filter) ||
-                stockItem.index.includes(filter)
-              );
-            }
-          })
-          .map((stockItem) => (
-            <StockCard
-              key={stockItem.index}
-              stock={stockItem}
-              dispatch={dispatch}
-            />
-          ))}
+          .sort(sortStock(filter))
+          .map((stockItem) => {
+            const showCard = isCardShown(stockItem, filter);
+
+            return (
+              <StockCard
+                show={showCard}
+                key={stockItem.index}
+                stock={stockItem}
+                dispatch={dispatch}
+              />
+            );
+          })}
       </Grid>
       <DetailsOverlay
         dispatch={dispatch}
@@ -136,43 +151,53 @@ const StockPage = ({
           <PurchaseForm state={state} dispatch={dispatch} />
         )}
       </Dialog>
-      <ShoppingCart state={state} dispatch={dispatch} />
-    </Page>
+      <ShoppingCart shopId={shop._id} state={state} dispatch={dispatch} />
+    </>
   );
 };
 
 export const Stock = () => {
   const { shopId } = useParams<{ shopId: string }>();
-  const { data, isLoading, isError } = useQuery(
-    ["stock", { shopId }],
-    getStock
+  const elapsedTime = 0;
+  const { data, isLoading, isError } = useQuery(["stock", { shopId }], () =>
+    getStock({ shopId, elapsedTime })
   );
-
-  if (isLoading) {
-    return (
-      <Page>
-        <PageTitle>Loading...</PageTitle>
-        <PageText>Loading...</PageText>
-        <SearchPanel>
-          <CartButton loading={true}>Shopping Cart</CartButton>
-          <InputGroup disabled={true} />
-        </SearchPanel>
-        <Grid>
-          {new Array(10).fill(null).map((_, i) => (
-            <StockSkeleton key={i}>
-              <Spinner />
-            </StockSkeleton>
-          ))}
-        </Grid>
-      </Page>
-    );
-  }
   if (isError) {
     return <ErrorBanner text="Something went wrong - would you like to go " />;
   }
-  const { stock, shop } = data as {
-    stock: DetailedStock[];
-    shop: ShopModel;
-  };
-  return <StockPage stock={stock} shop={shop} />;
+
+  return (
+    <Page>
+      <PageTitle loading={isLoading}>
+        {isLoading ? "Loading..." : data.shop.name}
+      </PageTitle>
+      <PageText loading={isLoading}>
+        {isLoading ? (
+          "Loading..."
+        ) : (
+          <>
+            {`Welcome to ${data.shop.name}! Have a look around - buy something if it catches your eye. Don't worry about those other `}
+            <Link to="/shops">shops</Link> - we have everything you need
+          </>
+        )}
+      </PageText>
+      {isLoading ? (
+        <>
+          <SearchPanel>
+            <CartButton loading={true}>Shopping Cart</CartButton>
+            <InputGroup disabled={true} />
+          </SearchPanel>
+          <Grid>
+            {new Array(10).fill(null).map((_, i) => (
+              <StockSkeleton key={i}>
+                <Spinner />
+              </StockSkeleton>
+            ))}
+          </Grid>
+        </>
+      ) : (
+        <StockPage stock={data.stock} shop={data.shop} />
+      )}
+    </Page>
+  );
 };
