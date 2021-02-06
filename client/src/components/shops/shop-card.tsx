@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 
 import { deleteShop as deleteShopRequest } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
-import { AppToaster, useGlobal } from "../../common";
+import { AppToaster } from "../../common";
 import { ButtonHolder, CardHeader, CardTitle, StandardCard } from "../shared";
 import { DeleteButton, EditButton } from "./sub-components";
 
@@ -19,19 +19,18 @@ export const Shop = ({
   refetch: () => void;
 }) => {
   const history = useHistory();
-  const [lookup, setLookup] = useGlobal("shopLookup");
+
   const [isTooltipDisabled, setDisabled] = React.useState(false);
-  const [deleteShop] = useMutation<string, RequestError, { id: string }>(
-    deleteShopRequest
-  );
+  const { mutate: deleteShop } = useMutation<
+    string,
+    RequestError,
+    { id: string }
+  >(deleteShopRequest);
   const handleDelete = () =>
     deleteShop(
       { id: shopId },
       {
         onSuccess: () => {
-          const newLookup = { ...lookup };
-          delete newLookup[shopId];
-          setLookup(newLookup);
           refetch();
           AppToaster.show({
             message: `${name} has been deleted`,
@@ -43,23 +42,32 @@ export const Shop = ({
     );
 
   return (
-    <Tooltip disabled={isTooltipDisabled} content="Click to view stock">
-      <StandardCard
-        elevation={2}
-        interactive={true}
-        onClick={() => history.push(`/shops/${shopId}`)}
-      >
-        <CardHeader>
-          <CardTitle>{name}</CardTitle>
-          <ButtonHolder
-            onMouseEnter={() => setDisabled(true)}
-            onMouseLeave={() => setDisabled(false)}
+    <StandardCard
+      tooltipDisabled={isTooltipDisabled}
+      tooltipContent="Click to view stock"
+      elevation={2}
+      interactive={true}
+      onClick={() => history.push(`/shops/${shopId}`)}
+    >
+      <CardHeader>
+        <CardTitle>{name}</CardTitle>
+        <ButtonHolder>
+          <Tooltip
+            content="Click to edit shop"
+            onOpened={() => setDisabled(true)}
+            onClose={() => setDisabled(false)}
           >
             <EditButton shop={{ name }} refetch={refetch} shopId={shopId} />
+          </Tooltip>
+          <Tooltip
+            content="Click to delete shop"
+            onOpened={() => setDisabled(true)}
+            onClose={() => setDisabled(false)}
+          >
             <DeleteButton handleDelete={handleDelete} name={name} />
-          </ButtonHolder>
-        </CardHeader>
-      </StandardCard>
-    </Tooltip>
+          </Tooltip>
+        </ButtonHolder>
+      </CardHeader>
+    </StandardCard>
   );
 };

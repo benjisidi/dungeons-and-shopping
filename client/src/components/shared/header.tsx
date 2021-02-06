@@ -14,10 +14,11 @@ import {
   Position,
 } from "@blueprintjs/core";
 import React from "react";
+import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import { logout } from "../../api-service";
+import { logout, reauth } from "../../api-service";
 import { AppToaster, useGlobal } from "../../common";
 import { LoginForm, RegisterForm } from "../auth";
 
@@ -30,11 +31,13 @@ const UserMenu = styled(Menu)`
 `;
 
 const UserActions = ({
+  loading,
   loggedIn,
   openModal,
   username = "Sign In Here",
   openLogoutWarning,
 }: {
+  loading: boolean;
   loggedIn: boolean;
   username: string;
   openModal: (type: "register" | "login") => void;
@@ -42,6 +45,7 @@ const UserActions = ({
 }) => (
   <div style={{ marginLeft: "auto" }}>
     <Popover
+      disabled={loading}
       interactionKind={PopoverInteractionKind.HOVER}
       content={
         <UserMenu>
@@ -66,7 +70,12 @@ const UserActions = ({
       }
       position={Position.BOTTOM}
     >
-      <Button className={Classes.MINIMAL} icon="user" text={username} />
+      <Button
+        loading={loading}
+        className={Classes.MINIMAL}
+        icon="user"
+        text={username}
+      />
     </Popover>
   </div>
 );
@@ -90,20 +99,29 @@ export const PageHeader = () => {
     }));
   const [user] = useGlobal("user");
   const [loggedIn] = useGlobal("loggedIn");
+  const [loaded, setLoaded] = useGlobal("loaded");
   const history = useHistory();
-
+  const { mutate: refreahToken } = useMutation(reauth);
+  // on app boot try and reauth with any token left in local
+  React.useEffect(() => {
+    if (!loaded && !loggedIn) {
+      refreahToken(null, { onSettled: () => setLoaded(true) });
+    }
+  }, [loaded]);
   return (
     <Navbar>
       <NavbarGroup style={{ width: "100%" }}>
         <NavbarHeading color="white">Dungeons and Shoppping</NavbarHeading>
         <NavbarDivider />
         <Button
+          loading={!loaded}
           onClick={() => history.push("/")}
           className={Classes.MINIMAL}
           icon="home"
           text="Home"
         />
         <UserActions
+          loading={!loaded}
           loggedIn={loggedIn}
           openLogoutWarning={() => setLogoutWarning(true)}
           openModal={openModal}

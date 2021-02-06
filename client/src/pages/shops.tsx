@@ -24,21 +24,6 @@ const ShopSkeleton = styled.div`
 
 export const Shops = () => {
   const { data, isLoading, isError, refetch } = useQuery("shops", getShops);
-  if (isLoading) {
-    return (
-      <Page>
-        <PageTitle>Your Shops!</PageTitle>
-        <PageText>
-          Create and update shops! Select a shop to see what it stocks
-        </PageText>
-        <Grid>
-          <ShopSkeleton>
-            <Spinner />
-          </ShopSkeleton>
-        </Grid>
-      </Page>
-    );
-  }
   if (isError) {
     return <ErrorBanner text="Something went wrong - would you like to go " />;
   }
@@ -50,15 +35,23 @@ export const Shops = () => {
         Create and update shops! Select a shop to see what it stocks
       </PageText>
       <Grid>
-        <CreateShop refetch={refetch} />
-        {(data || []).map(({ name, _id }, i) => (
-          <Shop
-            refetch={refetch}
-            key={`${name}-${i}`}
-            name={name}
-            shopId={_id}
-          />
-        ))}
+        {isLoading ? (
+          <ShopSkeleton>
+            <Spinner />
+          </ShopSkeleton>
+        ) : (
+          <>
+            <CreateShop refetch={refetch} />
+            {(data || []).map(({ name, _id }, i) => (
+              <Shop
+                refetch={refetch}
+                key={`${name}-${i}`}
+                name={name}
+                shopId={_id}
+              />
+            ))}
+          </>
+        )}
       </Grid>
     </Page>
   );

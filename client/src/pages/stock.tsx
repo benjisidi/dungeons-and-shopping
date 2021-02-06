@@ -1,16 +1,29 @@
-import { Button, Card, Colors, InputGroup, Spinner } from "@blueprintjs/core";
+import {
+  Button,
+  Card,
+  Colors,
+  Dialog,
+  InputGroup,
+  Spinner,
+} from "@blueprintjs/core";
+import isEmpty from "lodash/isEmpty";
 import React, { Reducer } from "react";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import { getStock } from "../api-service";
-import { ErrorBanner } from "../components/shared";
+import { ClearButton, ErrorBanner } from "../components/shared";
 import { Grid, Page, PageText, PageTitle } from "../components/shared";
-import { DetailsOverlay, StockCard, stockReducer } from "../components/stock";
+import {
+  DetailsOverlay,
+  PurchaseForm,
+  ShoppingCart,
+  StockCard,
+  stockReducer,
+} from "../components/stock";
 import type {
   DetailedStock,
-  Details,
   PageState,
   ShopModel,
   StockAction,
@@ -37,7 +50,36 @@ const StockSkeleton = styled(Card)`
 const CartButton = styled(Button)`
   margin-right: 10px;
   width: 120px;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 `;
+
+const getStockObject = (stock: DetailedStock[]): PageState["stock"] =>
+  stock.reduce((acc: PageState["stock"], curr) => {
+    acc[curr.itemId] = curr;
+    return acc;
+  }, {});
+
+const isCardShown = (stockItem: DetailedStock, filter: string) =>
+  !filter ||
+  stockItem.name.includes(filter) ||
+  stockItem.index.includes(filter);
+
+const sortStock = (filter: string) => (
+  a: DetailedStock,
+  b: DetailedStock
+): number => {
+  const showA = isCardShown(a, filter);
+  const showB = isCardShown(b, filter);
+  if (showA === showB) {
+    return 0;
+  }
+  if (showA && !showB) {
+    return -1;
+  }
+  if (!showA && showB) {
+    return 1;
+  }
+};
 
 const StockPage = ({
   stock,
@@ -54,89 +96,108 @@ const StockPage = ({
       isDetailsOpen: false,
       isCartOpen: false,
       purchaseItem: null,
-      detailsState: null,
-      cart: [],
-      stock,
+      detailsItem: null,
+      cart: {},
+      stock: getStockObject(stock),
     }
   );
+
   return (
-    <Page>
-      <PageTitle>{shop.name}</PageTitle>
-      <PageText>
-        {`Welcome to ${shop.name}! Have a look around - buy something if it catches your eye. Don't worry about those other `}
-        <Link to="/shops">shops</Link> - we have everything you need
-      </PageText>
+    <>
       <SearchPanel>
-        <CartButton>Shopping Cart</CartButton>
+        <CartButton
+          disabled={isEmpty(state.cart)}
+          onClick={() => dispatch({ type: "OPEN_CART" })}
+        >
+          {isEmpty(state.cart) ? "Cart Empty!" : "Shopping Cart"}
+        </CartButton>
+
         <InputGroup
           placeholder="Type Here to Search"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setFilter(e.target.value)
           }
+          value={filter}
+          rightElement={<ClearButton clearValue={() => setFilter("")} />}
         />
       </SearchPanel>
       <Grid>
-        {state.stock
-          .filter((stockItem) => {
-            if (!filter) {
-              return true;
-            } else {
-              return (
-                stockItem.name.includes(filter) ||
-                stockItem.index.includes(filter)
-              );
-            }
-          })
-          .map((stockItem) => (
-            <StockCard
-              key={stockItem.index}
-              stock={stockItem}
-              dispatch={dispatch}
-            />
-          ))}
+        {Object.values(state.stock)
+          .sort(sortStock(filter))
+          .map((stockItem) => {
+            const showCard = isCardShown(stockItem, filter);
+
+            return (
+              <StockCard
+                show={showCard}
+                key={stockItem.index}
+                stock={stockItem}
+                dispatch={dispatch}
+              />
+            );
+          })}
       </Grid>
       <DetailsOverlay
         dispatch={dispatch}
-        itemName={state.detailsState?.name as string}
-        details={state.detailsState?.details as Details}
+        detailsItem={state.stock[state.detailsItem as string]}
         isOpen={state.isDetailsOpen}
       />
-    </Page>
+      <Dialog
+        onClose={() => dispatch({ type: "CANCEL_PURCHASE" })}
+        title={state.stock[state.purchaseItem as string]?.name}
+        isOpen={state.isPurchaseFormOpen}
+      >
+        {state.isPurchaseFormOpen && (
+          <PurchaseForm state={state} dispatch={dispatch} />
+        )}
+      </Dialog>
+      <ShoppingCart shopId={shop._id} state={state} dispatch={dispatch} />
+    </>
   );
 };
 
 export const Stock = () => {
   const { shopId } = useParams<{ shopId: string }>();
-  const { data, isLoading, isError } = useQuery(
-    ["stock", { shopId }],
-    getStock
+  const elapsedTime = 0;
+  const { data, isLoading, isError } = useQuery(["stock", { shopId }], () =>
+    getStock({ shopId, elapsedTime })
   );
-
-  if (isLoading) {
-    return (
-      <Page>
-        <PageTitle>Loading...</PageTitle>
-        <PageText>Loading...</PageText>
-        <SearchPanel>
-          <CartButton loading={true}>Shopping Cart</CartButton>
-          <InputGroup disabled={true} />
-        </SearchPanel>
-        <Grid>
-          {new Array(10).fill(null).map((_, i) => (
-            <StockSkeleton key={i}>
-              <Spinner />
-            </StockSkeleton>
-          ))}
-        </Grid>
-      </Page>
-    );
-  }
   if (isError) {
     return <ErrorBanner text="Something went wrong - would you like to go " />;
   }
-  const { stock, shop } = data as {
-    stock: DetailedStock[];
-    shop: ShopModel;
-  };
-  return <StockPage stock={stock} shop={shop} />;
+
+  return (
+    <Page>
+      <PageTitle loading={isLoading}>
+        {isLoading ? "Loading..." : data.shop.name}
+      </PageTitle>
+      <PageText loading={isLoading}>
+        {isLoading ? (
+          "Loading..."
+        ) : (
+          <>
+            {`Welcome to ${data.shop.name}! Have a look around - buy something if it catches your eye. Don't worry about those other `}
+            <Link to="/shops">shops</Link> - we have everything you need
+          </>
+        )}
+      </PageText>
+      {isLoading ? (
+        <>
+          <SearchPanel>
+            <CartButton loading={true}>Shopping Cart</CartButton>
+            <InputGroup disabled={true} />
+          </SearchPanel>
+          <Grid>
+            {new Array(10).fill(null).map((_, i) => (
+              <StockSkeleton key={i}>
+                <Spinner />
+              </StockSkeleton>
+            ))}
+          </Grid>
+        </>
+      ) : (
+        <StockPage stock={data.stock} shop={data.shop} />
+      )}
+    </Page>
+  );
 };

@@ -35,7 +35,7 @@ const CreateShopCard = styled.div`
 
 export const CreateShop = ({ refetch }: { refetch: () => void }) => {
   const [isCreateOpen, setCreateOpen] = React.useState(false);
-  const [saveShop, { isError, isLoading, error }] = useMutation<
+  const { mutate: saveShop, isError, isLoading, error } = useMutation<
     ShopModel[],
     RequestError,
     { name: string }

@@ -18,14 +18,14 @@ export const EditButton = ({
   shopId: string;
 }) => {
   const [isEditOpen, setEditOpen] = React.useState(false);
-  const [updateShop, { isError, isLoading, error }] = useMutation<
+  const { mutate: updateShop, isError, isLoading, error } = useMutation<
     ShopModel[],
     RequestError,
     ShopValues & { id: string }
   >(updateShopRequest);
 
   const submit = async (values: ShopValues) => {
-    await updateShop(
+    updateShop(
       { ...values, id: shopId },
       {
         onSuccess: () => {

@@ -97,7 +97,7 @@ export interface ProcessRequest {
   }: {
     path: "/api/stock";
     id: string;
-    payload: { stock: Omit<Stock, "userId" | "itemId" | "shopId">[] };
+    payload: { stock: Omit<Stock, "userId" | "itemId" | "shopId" | "max">[] };
     method: "POST";
   }): Promise<{
     stock: DetailedStock[];
