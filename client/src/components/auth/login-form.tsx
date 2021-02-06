@@ -27,7 +27,7 @@ export const LoginForm = ({ onSubmit }: { onSubmit: () => void }) => {
     },
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [sendDetails, { isLoading, isError, error }] = useMutation<
+  const { mutate: sendDetails, isLoading, isError, error } = useMutation<
     void,
     RequestError,
     CurrentUser

@@ -16,7 +16,7 @@ declare interface NewUser {
 export const RegisterForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const { register, handleSubmit, errors } = useForm();
   const [showPassword, setShowPassword] = useState(false);
-  const [sendDetails, { isLoading, isError, error }] = useMutation<
+  const { mutate: sendDetails, isLoading, isError, error } = useMutation<
     void,
     RequestError,
     NewUser

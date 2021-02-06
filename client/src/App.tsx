@@ -4,7 +4,7 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 import { Spinner } from "@blueprintjs/core";
 import React from "react";
-import { QueryCache, ReactQueryCacheProvider, useMutation } from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import {
   BrowserRouter as Router,
   Route,
@@ -13,7 +13,6 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 
-import { reauth } from "./api-service";
 import { useGlobal } from "./common";
 import { PageHeader } from "./components/shared";
 import { Forbidden, Landing, NotFound, Shops, Stock } from "./pages";
@@ -32,11 +31,12 @@ const CentredSpinner = styled(Spinner)`
 `;
 
 export const App = () => {
+  // header handles all log in logic
   const [loggedIn] = useGlobal("loggedIn");
-  const [loaded, setLoaded] = useGlobal("loaded");
-  const [refreahToken] = useMutation(reauth);
-  const queryCache = new QueryCache({
-    defaultConfig: {
+  const [loaded] = useGlobal("loaded");
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
         retry: 2,
@@ -44,36 +44,31 @@ export const App = () => {
       },
     },
   });
-  // on app boot try and reauth with any token left in local
-  React.useEffect(() => {
-    if (!loaded && !loggedIn) {
-      refreahToken().then(() => setLoaded(true));
-    }
-  }, [loaded]);
 
-  if (!loaded) {
-    return <CentredSpinner />;
-  }
   return (
-    <ReactQueryCacheProvider queryCache={queryCache}>
+    <QueryClientProvider client={queryClient}>
       <Router>
         <PageHeader />
-        <Switch>
-          <Route exact path="/" component={() => <Landing />} />
-          <GuardedRoute
-            exact
-            loggedIn={loggedIn}
-            path="/shops"
-            component={() => <Shops />}
-          />
-          <GuardedRoute
-            loggedIn={loggedIn}
-            path="/shops/:shopId"
-            component={() => <Stock />}
-          />
-          <Route path="*" component={() => <NotFound />} />
-        </Switch>
+        {loaded ? (
+          <Switch>
+            <Route exact path="/" component={() => <Landing />} />
+            <GuardedRoute
+              exact
+              loggedIn={loggedIn}
+              path="/shops"
+              component={() => <Shops />}
+            />
+            <GuardedRoute
+              loggedIn={loggedIn}
+              path="/shops/:shopId"
+              component={() => <Stock />}
+            />
+            <Route path="*" component={() => <NotFound />} />
+          </Switch>
+        ) : (
+          <CentredSpinner />
+        )}
       </Router>
-    </ReactQueryCacheProvider>
+    </QueryClientProvider>
   );
 };
