@@ -14,7 +14,9 @@ import {
 export const StockCard = ({
   stock,
   dispatch,
+  show,
 }: {
+  show: boolean;
   stock: Stock & Item;
   dispatch: React.Dispatch<StockAction>;
 }) => {
@@ -22,8 +24,12 @@ export const StockCard = ({
   const isDisabled = number === 0;
   return (
     <StandardCard
+      showUser={show}
+      animateIn={false}
+      tooltipContent={isDisabled ? "Item out of stock" : "Click to add to cart"}
       style={{
         backgroundColor: isDisabled ? Colors.LIGHT_GRAY5 : Colors.WHITE,
+        cursor: isDisabled ? "not-allowed" : "pointer",
       }}
       onClick={() =>
         !isDisabled && dispatch({ type: "OPEN_PURCHASE", payload: itemId })
