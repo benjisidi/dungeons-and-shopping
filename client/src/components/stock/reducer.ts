@@ -56,6 +56,40 @@ const closeCart = (state: PageState): PageState => {
   return newState;
 };
 
+const clearCart = (state: PageState): PageState => {
+  const newState = cloneDeep(state);
+  Object.values(newState.cart).forEach(({ itemId, number }) => {
+    newState.stock[itemId].number += number;
+  });
+  newState.isCartOpen = false;
+  newState.cart = {};
+  return newState;
+};
+
+const buyCart = (state: PageState): PageState => {
+  const newState = cloneDeep(state);
+  newState.isCartOpen = false;
+  newState.cart = {};
+  return newState;
+};
+
+const editCartItem = (
+  state: PageState,
+  quantity: number,
+  itemId: string
+): PageState => {
+  const newState = cloneDeep(state);
+  newState.stock[itemId].number -= quantity;
+  newState.cart[itemId].number += quantity;
+  return newState;
+};
+const deleteCartItem = (state: PageState, itemId: string): PageState => {
+  const newState = cloneDeep(state);
+  newState.stock[itemId].number += newState.cart[itemId].number;
+  delete newState.cart[itemId];
+  return newState;
+};
+
 export const stockReducer = (
   state: PageState,
   action: StockAction
@@ -75,6 +109,14 @@ export const stockReducer = (
       return closeCart(state);
     case "OPEN_CART":
       return openCart(state);
+    case "EDIT_CART_ITEM":
+      return editCartItem(state, action.payload, action.meta);
+    case "DELETE_CART_ITEM":
+      return deleteCartItem(state, action.payload);
+    case "CLEAR_CART":
+      return clearCart(state);
+    case "BUY_CART":
+      return buyCart(state);
     default:
       throw new Error(
         `${(action as StockAction)?.type} is not a recognised stock action type`

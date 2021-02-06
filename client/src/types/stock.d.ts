@@ -1,4 +1,3 @@
-import type { Item, Stock } from "../../../types";
 import type {
   ArmourDetails,
   EquipmentPackDetails,
@@ -7,6 +6,7 @@ import type {
   VehicleDetails,
   WeaponDetails,
 } from ".";
+import type { DetailedStock } from "./response";
 
 export interface ShoppingCartItem {
   itemId: string;
@@ -24,10 +24,10 @@ export interface PageState {
   isPurchaseFormOpen: boolean;
   isDetailsOpen: boolean;
   isCartOpen: boolean;
-  purchaseItem: string | null;
-  detailsItem: string | null;
+  purchaseItem: string;
+  detailsItem: string;
   cart: { [itemId: string]: ShoppingCartItem };
-  stock: { [itemId: string]: Stock & Item };
+  stock: { [itemId: string]: DetailedStock };
 }
 
 interface FluxStandardAction {
@@ -42,7 +42,13 @@ interface OpenDetails extends FluxStandardAction {
 }
 
 interface SimpleAction extends FluxStandardAction {
-  type: "CLOSE_DETAILS" | "CANCEL_PURCHASE" | "OPEN_CART" | "CLOSE_CART";
+  type:
+    | "CLOSE_DETAILS"
+    | "CANCEL_PURCHASE"
+    | "OPEN_CART"
+    | "CLOSE_CART"
+    | "CLEAR_CART"
+    | "BUY_CART";
 }
 
 interface OpenPurchaseForm extends FluxStandardAction {
@@ -55,8 +61,21 @@ interface AddToCart extends FluxStandardAction {
   payload: number;
 }
 
+interface EditCartItem extends FluxStandardAction {
+  type: "EDIT_CART_ITEM";
+  payload: number;
+  meta: string;
+}
+
+interface DeleteCartItem extends FluxStandardAction {
+  type: "DELETE_CART_ITEM";
+  payload: string;
+}
+
 export type StockAction =
   | OpenDetails
   | SimpleAction
   | OpenPurchaseForm
-  | AddToCart;
+  | AddToCart
+  | DeleteCartItem
+  | EditCartItem;
