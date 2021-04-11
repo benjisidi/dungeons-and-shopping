@@ -31,7 +31,7 @@ const CentredSpinner = styled(Spinner)`
 `;
 
 export const App = () => {
-  // header handles all log in logic
+  // header handles all log-in logic
   const [loggedIn] = useGlobal("loggedIn");
   const [loaded] = useGlobal("loaded");
 

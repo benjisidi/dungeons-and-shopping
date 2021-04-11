@@ -1,5 +1,5 @@
 {
-  "extends": "../.tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "jsx": "react",
     "module": "esnext",
@@ -10,7 +10,6 @@
     "sourceMap": true,
     "target": "es5",
     "esModuleInterop": true,
-    "baseUrl": "./",
     "noEmit": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -18,9 +17,9 @@
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "error",
     "moduleResolution": "node",
-    "paths": {},
     "strictNullChecks": false,
     "lib": ["es2019", "dom"]
   },
-  "include": ["src/**/*", "custom.d.ts"]
+  "include": ["src/**/*", "custom.d.ts"],
+  "exclude": ["node_modules"]
 }

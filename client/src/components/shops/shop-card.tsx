@@ -25,21 +25,16 @@ export const Shop = ({
     string,
     RequestError,
     { id: string }
-  >(deleteShopRequest);
-  const handleDelete = () =>
-    deleteShop(
-      { id: shopId },
-      {
-        onSuccess: () => {
-          refetch();
-          AppToaster.show({
-            message: `${name} has been deleted`,
-            intent: Intent.DANGER,
-            icon: "delete",
-          });
-        },
-      }
-    );
+  >(deleteShopRequest, {
+    onSuccess: () => {
+      refetch();
+      AppToaster.show({
+        message: `${name} has been deleted`,
+        intent: Intent.DANGER,
+        icon: "delete",
+      });
+    },
+  });
 
   return (
     <StandardCard
@@ -64,7 +59,10 @@ export const Shop = ({
             onOpened={() => setDisabled(true)}
             onClose={() => setDisabled(false)}
           >
-            <DeleteButton handleDelete={handleDelete} name={name} />
+            <DeleteButton
+              handleDelete={() => deleteShop({ id: shopId })}
+              name={name}
+            />
           </Tooltip>
         </ButtonHolder>
       </CardHeader>

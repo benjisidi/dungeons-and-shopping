@@ -3,7 +3,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 
-import type { ShopValues } from "../../../types";
+import type { ShopMeta } from "shared-types";
 
 const FormWrapper = styled.div`
   margin: 30px auto 0;
@@ -28,8 +28,8 @@ export const ShopForm = ({
   error: string;
   isError: boolean;
   isLoading: boolean;
-  submit: (values: ShopValues) => void;
-  defaultValues?: Partial<ShopValues>;
+  submit: (values: ShopMeta) => void;
+  defaultValues?: Partial<ShopMeta>;
 }) => {
   const { register, handleSubmit, errors } = useForm({ defaultValues });
 

@@ -1,6 +1,7 @@
 import cloneDeep from "lodash/cloneDeep";
 
-import type { Item, PageState, Stock, StockAction } from "../../types";
+import type { PageState, StockAction } from "../../types";
+import type { Item, Stock } from "shared-types";
 
 const openDetailsOverlay = (state: PageState, itemId: string): PageState => {
   const newState = cloneDeep(state);

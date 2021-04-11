@@ -1,4 +1,4 @@
-import type { Stock } from "../../../types";
+import type { Stock } from "shared-types";
 import { setGlobal } from "../common";
 import { processRequest } from "./api-helpers/process-request";
 
