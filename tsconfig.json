@@ -3,6 +3,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "noEmit": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   }
 }
