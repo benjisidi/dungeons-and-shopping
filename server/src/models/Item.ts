@@ -1,16 +1,37 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { model, Schema } from "mongoose";
-
+import { model, Schema, Document } from "mongoose";
 import {
-  ArmourModel,
-  GearModel,
-  ItemModel,
-  itemType,
-  PackModel,
-  ToolModel,
-  VehicleModel,
-  WeaponModel,
-} from "../types";
+  Armour as IArmour,
+  EquipmentPack as IEquipmentPack,
+  Gear as IGear,
+  Item as IItem,
+  Tool as ITool,
+  Vehicle as IVehicle,
+  Weapon as IWeapon,
+} from "shared-types";
+import { itemType } from "shared-types";
+
+interface ItemModel extends Document, IItem {
+  global: boolean;
+}
+interface GearModel extends Document, IGear {
+  global: boolean;
+}
+interface PackModel extends Document, IEquipmentPack {
+  global: boolean;
+}
+interface ToolModel extends Document, ITool {
+  global: boolean;
+}
+interface VehicleModel extends Document, IVehicle {
+  global: boolean;
+}
+interface WeaponModel extends Document, IWeapon {
+  global: boolean;
+}
+interface ArmourModel extends Document, IArmour {
+  global: boolean;
+}
 
 const itemTypes: itemType[] = [
   "gear",

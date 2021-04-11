@@ -4,8 +4,8 @@ import isArray from "lodash/isArray";
 import React from "react";
 import styled from "styled-components";
 
-import type { Item, Stock, StockAction } from "../../types";
-
+import type { StockAction } from "../../types";
+import type { Item, Stock } from "shared-types";
 const CardTitle = styled.h2`
   margin-top: 0;
   max-width: 500px;

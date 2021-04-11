@@ -22,13 +22,8 @@ import {
   StockCard,
   stockReducer,
 } from "../components/stock";
-import type {
-  DetailedStock,
-  PageState,
-  ShopModel,
-  StockAction,
-} from "../types";
-
+import type { DetailedStock, PageState, StockAction } from "../types";
+import type { Shop, Response } from "shared-types";
 const SearchPanel = styled.div`
   margin: 30px auto 0;
   width: 300px;
@@ -61,8 +56,8 @@ const getStockObject = (stock: DetailedStock[]): PageState["stock"] =>
 
 const isCardShown = (stockItem: DetailedStock, filter: string) =>
   !filter ||
-  stockItem.name.includes(filter) ||
-  stockItem.index.includes(filter);
+  stockItem?.name?.includes(filter) ||
+  stockItem?.index?.includes(filter);
 
 const sortStock = (filter: string) => (
   a: DetailedStock,
@@ -86,7 +81,7 @@ const StockPage = ({
   shop,
 }: {
   stock: DetailedStock[];
-  shop: ShopModel;
+  shop: Response<Shop>;
 }) => {
   const [filter, setFilter] = React.useState("");
   const [state, dispatch] = React.useReducer<Reducer<PageState, StockAction>>(

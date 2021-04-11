@@ -1,5 +1,5 @@
 import difference from "lodash/difference";
-import { Item } from "../types";
+import { Item } from "shared-types";
 import { isArray } from "lodash";
 
 export const getMissingKeys = (

@@ -1,5 +1,5 @@
 import { Item, Stock } from "../models";
-import { StockModel } from "../types";
+
 import { asyncForEach } from "./helpers";
 
 // find 10 random items and create stock entries for them
@@ -21,10 +21,7 @@ export const populateShop = async (shopId: string, userId: string) => {
 };
 
 // given an elapsed time, calculate what happens to the stock of a shop
-export const repopulateShop = async (
-  shopId: string,
-  elapsedTime: number
-): Promise<StockModel[]> => {
+export const repopulateShop = async (shopId: string, elapsedTime: number) => {
   // get all stock for a shop and up the number
   const stock = await Stock.find({ shopId });
   await asyncForEach(stock, async (stockEntry) => {

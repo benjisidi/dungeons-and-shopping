@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { isEquipmentPack, isWeapon, RawItem, Item } from "../types";
+import { RawEquipmentPack, RawWeapon, RawItem, Item } from "shared-types";
 import { pick, find, cloneDeep } from "lodash";
 import { typeMapping } from ".";
+
+const isEquipmentPack = (item: RawItem): item is RawEquipmentPack =>
+  item["equipment_category"] === "Adventuring Gear" &&
+  item["gear_category"] === "Equipment Pack";
+
+const isWeapon = (item: RawItem): item is RawWeapon =>
+  item["equipment_category"] === "Weapon";
 
 const transformRawItem = (rawItem: RawItem): Item => {
   const { cost, weight, name, index, equipment_category } = rawItem;

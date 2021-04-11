@@ -133,7 +133,13 @@ export interface RawArmour extends RawBaseItem, ArmourDetails {
   equipment_category: "Armor";
 }
 
-type itemType = "gear" | "pack" | "tool" | "vehicle" | "weapon" | "armour";
+export type itemType =
+  | "gear"
+  | "pack"
+  | "tool"
+  | "vehicle"
+  | "weapon"
+  | "armour";
 
 interface BaseItem {
   name: string;

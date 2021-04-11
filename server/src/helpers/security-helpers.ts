@@ -4,7 +4,10 @@ import jwt from "jsonwebtoken";
 
 import { keys } from "../config";
 import { User } from "../models";
-import { JWTinfo } from "../types";
+
+interface JWTinfo {
+  id: string;
+}
 
 export const createToken = (id: string) => {
   const jwtDetails: JWTinfo = { id };

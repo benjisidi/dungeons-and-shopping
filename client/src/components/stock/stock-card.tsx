@@ -1,7 +1,7 @@
 import { Button, Colors } from "@blueprintjs/core";
 import React from "react";
 
-import type { Item, Stock } from "../../../../types";
+import type { Item, Stock } from "shared-types";
 import type { StockAction } from "../../types";
 import {
   ButtonHolder,

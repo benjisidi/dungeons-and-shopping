@@ -1,5 +1,8 @@
-import { Schema, model } from "mongoose";
-import { StockModel } from "../types";
+import { Schema, model, Document } from "mongoose";
+
+import { Stock as IStock } from "shared-types";
+
+export interface StockModel extends IStock, Document {}
 
 const StockSchema = new Schema(
   {

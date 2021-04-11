@@ -1,5 +1,8 @@
-import { Schema, model } from "mongoose";
-import { ShopModel } from "../types";
+import { Schema, model, Document } from "mongoose";
+
+import { Shop as IShop } from "shared-types";
+
+interface ShopModel extends IShop, Document {}
 
 export const ShopSchema = new Schema(
   {

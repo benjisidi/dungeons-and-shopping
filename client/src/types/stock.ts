@@ -5,14 +5,14 @@ import type {
   ToolDetails,
   VehicleDetails,
   WeaponDetails,
-} from ".";
+} from "shared-types";
 import type { DetailedStock } from "./response";
 
 export interface ShoppingCartItem {
   itemId: string;
   number: number;
 }
-declare type Details =
+export type Details =
   | ArmourDetails
   | WeaponDetails
   | VehicleDetails

@@ -5,7 +5,7 @@ import { useMutation } from "react-query";
 import { updateShop as updateShopRequest } from "../../../api-service";
 import type { RequestError } from "../../../api-service/api-helpers/request-error";
 import { AppToaster } from "../../../common";
-import type { ShopModel, ShopValues } from "../../../types";
+import type { Shop, Response, ShopMeta } from "shared-types";
 import { ShopForm } from "./shop-form";
 
 export const EditButton = ({
@@ -14,17 +14,17 @@ export const EditButton = ({
   shopId,
 }: {
   refetch: () => void;
-  shop: ShopValues;
+  shop: ShopMeta;
   shopId: string;
 }) => {
   const [isEditOpen, setEditOpen] = React.useState(false);
   const { mutate: updateShop, isError, isLoading, error } = useMutation<
-    ShopModel[],
+    Response<Shop>[],
     RequestError,
-    ShopValues & { id: string }
+    ShopMeta & { id: string }
   >(updateShopRequest);
 
-  const submit = async (values: ShopValues) => {
+  const submit = async (values: ShopMeta) => {
     updateShop(
       { ...values, id: shopId },
       {

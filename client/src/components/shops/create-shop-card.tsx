@@ -3,11 +3,10 @@ import React from "react";
 import { useMutation } from "react-query";
 import styled from "styled-components";
 
-import type { ShopModel } from "../../../../types";
 import { createShop as createShopRequest } from "../../api-service";
 import type { RequestError } from "../../api-service/api-helpers/request-error";
 import { AppToaster } from "../../common";
-import type { ShopValues } from "../../types";
+import type { ShopMeta, Shop, Response } from "shared-types";
 import { ShopForm } from "./sub-components/shop-form";
 
 const CreateShopCard = styled.div`
@@ -36,12 +35,12 @@ const CreateShopCard = styled.div`
 export const CreateShop = ({ refetch }: { refetch: () => void }) => {
   const [isCreateOpen, setCreateOpen] = React.useState(false);
   const { mutate: saveShop, isError, isLoading, error } = useMutation<
-    ShopModel[],
+    Response<Shop>[],
     RequestError,
     { name: string }
   >(createShopRequest);
 
-  const submit = (values: ShopValues) =>
+  const submit = (values: ShopMeta) =>
     saveShop(values, {
       onSuccess: () => {
         refetch();

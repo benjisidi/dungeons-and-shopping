@@ -1,5 +1,8 @@
-import { Schema, model } from "mongoose";
-import { UserModel } from "../types";
+import { Schema, model, Document } from "mongoose";
+
+import { User as IUser } from "shared-types";
+
+interface UserModel extends IUser, Document {}
 
 export const UserSchema = new Schema(
   {

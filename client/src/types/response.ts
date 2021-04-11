@@ -1,12 +1,6 @@
-import type {
-  ItemModel,
-  Shop,
-  ShopModel,
-  Stock,
-  UserModel,
-} from "../../../types";
+import type { Item, Shop, Response, Stock, User } from "shared-types";
 
-export interface DetailedStock extends ItemModel, Stock {}
+export type DetailedStock = Response<Item & Stock>;
 
 export interface ProcessRequest {
   // create user
@@ -22,7 +16,7 @@ export interface ProcessRequest {
       email: string;
     };
     method: "PUT";
-  }): Promise<{ user: Omit<UserModel, "password">; token: string }>;
+  }): Promise<{ user: Omit<Response<User>, "password">; token: string }>;
   // login
   ({
     path,
@@ -35,10 +29,10 @@ export interface ProcessRequest {
       password: string;
     };
     method: "POST";
-  }): Promise<{ user: Omit<UserModel, "password">; token: string }>;
+  }): Promise<{ user: Omit<Response<User>, "password">; token: string }>;
   // reauth
   ({ path }: { path: "/api/users" }): Promise<{
-    user: Omit<UserModel, "password">;
+    user: Omit<Response<User>, "password">;
     token: string;
   }>;
   // create shop
@@ -50,9 +44,9 @@ export interface ProcessRequest {
     path: "/api/shops";
     payload: Omit<Shop, "userId">;
     method: "POST";
-  }): Promise<{ shops: ShopModel[] }>;
+  }): Promise<{ shops: Response<Shop>[] }>;
   // get shops
-  ({ path }: { path: "/api/shops" }): Promise<{ shops: ShopModel[] }>;
+  ({ path }: { path: "/api/shops" }): Promise<{ shops: Response<Shop>[] }>;
   // update shop
   ({
     path,
@@ -64,7 +58,7 @@ export interface ProcessRequest {
     payload: Omit<Shop, "userId">;
     method: "POST";
     id: string;
-  }): Promise<{ shops: ShopModel[] }>;
+  }): Promise<{ shops: Response<Shop>[] }>;
   // delete shop
   ({
     path,
@@ -85,7 +79,7 @@ export interface ProcessRequest {
     id: string;
     queryParams: { time: number };
   }): Promise<{
-    shop: ShopModel;
+    shop: Response<Shop>;
     stock: DetailedStock[];
   }>;
   // update stock

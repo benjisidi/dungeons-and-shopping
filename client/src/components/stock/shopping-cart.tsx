@@ -2,14 +2,9 @@ import { Button, Colors, Drawer, Intent } from "@blueprintjs/core";
 import isEmpty from "lodash/isEmpty";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import type { RequestError } from "src/api-service/api-helpers/request-error";
-import type {
-  Item,
-  PageState,
-  Stock,
-  StockAction,
-  StockModel,
-} from "src/types";
+import type { RequestError } from "../../api-service/api-helpers/request-error";
+import type { PageState, StockAction } from "../../types";
+import type { Item, Stock, Response } from "shared-types";
 import styled from "styled-components";
 
 import { updateStock } from "../../api-service";
@@ -130,7 +125,7 @@ export const ShoppingCart = ({
   dispatch: React.Dispatch<StockAction>;
 }) => {
   const { mutate: buyCart, isLoading } = useMutation<
-    StockModel[],
+    Response<Stock>[],
     RequestError,
     {
       shopId: string;

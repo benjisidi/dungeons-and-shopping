@@ -1,7 +1,7 @@
 import { Button, Intent, NumericInput } from "@blueprintjs/core";
 import React from "react";
 import { useForm } from "react-hook-form";
-import type { PageState, StockAction } from "src/types";
+import type { PageState, StockAction } from "../../types";
 import styled from "styled-components";
 
 import { AppToaster } from "../../common";

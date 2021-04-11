@@ -1,0 +1,7 @@
+{
+  "name": "shared-types",
+  "version": "0.0.1",
+  "description": "types for the 5e shops project",
+  "main": "index.d.ts",
+  "license": "MIT"
+}

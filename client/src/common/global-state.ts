@@ -1,6 +1,6 @@
 import reactn from "reactn";
 
-import type { User } from "../types";
+import type { User } from "shared-types";
 
 declare interface GlobalState {
   loaded: boolean;
