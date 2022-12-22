@@ -41,7 +41,7 @@
     "dotenv": "^8.2.0",
     "eslint-plugin-simple-import-sort": "^5.0.3",
     "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.20",
     "mongoose": "^5.9.12",
     "validator": "^13.1.17"
